@@ -1,0 +1,8 @@
+build/
+node_modules/
+junk*
+.env
+.DS_Store
+.node_repl_history
+.nyc_output/
+.coveralls.yml
