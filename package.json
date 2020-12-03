@@ -1,6 +1,6 @@
 {
   "name": "prepress",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Markdown generator",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -9,7 +9,9 @@
   ],
   "author": "Michael Hopcroft",
   "license": "MIT",
-  "keywords": [ "markdown" ],
+  "keywords": [
+    "markdown"
+  ],
   "repository": "https://github.com/MikeHopcroft/prepress",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
