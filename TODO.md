@@ -1,6 +1,8 @@
 # TODO List
 
 * README.md
+* Better error translation
+  * Error: cannot lstat "documentation/src/getting_labyrinth.src.md".
 * Better error handling in parser
   * Check number of arguments
 * Escaping arguments to file, spawn, repl, etc.
