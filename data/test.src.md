@@ -26,3 +26,10 @@ This is some text before a warning block.
 ~~~
 Warning text
 ~~~
+
+This is some text before an included file
+
+[//]: # (file data/file.txt)
+~~~
+Warning text
+~~~

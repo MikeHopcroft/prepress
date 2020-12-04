@@ -1,4 +1,5 @@
 import { spawnSync } from 'child_process';
+import * as fs from 'fs';
 import stripAnsi = require('strip-ansi');
 
 import {
@@ -14,7 +15,7 @@ import { scriptHandshake } from './script_handshake';
 export async function updateMarkdown(text: string) {
   let blocks = parseMarkdown(text);
 
-  // blocks = processRepair(nameToSKU, blocks);
+  blocks = processFile(blocks);
   blocks = await processRepl(blocks);
   blocks = await processSpawn(blocks);
   blocks = processWarnings(blocks);
@@ -22,45 +23,31 @@ export async function updateMarkdown(text: string) {
   return combine(blocks);
 }
 
-// function processRepair(
-//   nameToSKU: Map<string, number>,
-//   blocks: AnyBlock[]
-// ): AnyBlock[] {
-//   const re = /(\s*\d+\s+(.+)\s+\()(\d+(?:\.\d+)?)(\)\s*)/;
+function processFile(blocks: AnyBlock[]): AnyBlock[] {
+  return blocks.map(block => {
+    if (block.type === CodeBlockType.FILE) {
+      // console.log(`spawnSync(${block.executable},${block.args})`);
+      let lines = fs.readFileSync(block.file, 'utf-8').split(/\r?\n/);
 
-//   function replacer(
-//     match: string,
-//     left: string,
-//     name: string,
-//     sku: string,
-//     right: string
-//   ) {
-//     const newSKU = nameToSKU.get(name);
-//     if (!newSKU) {
-//       const message = `Unknown product "${name}"`;
-//       throw new TypeError(message);
-//     }
-//     if (sku !== newSKU.toString()) {
-//       console.log(`${name}: ${sku} => ${newSKU}`);
-//     }
-//     return left + newSKU + right;
-//   }
+      // TODO: parameter to enable line numbering.
+      const fieldWidth = lines.length.toString().length;
+      if (block.numbered) {
+        lines = lines.map((l,i) => {
+          return rightJustify((i+1).toString(), fieldWidth) + ': ' + l;
+        });
+      }
 
-//   return blocks.map(block => {
-//     if (block.type === CodeBlockType.REPAIR) {
-//       const lines = block.lines.map((line, i) => {
-//         if (i < 2 || i === block.lines.length - 1) {
-//           return line;
-//         } else {
-//           return line.replace(re, replacer);
-//         }
-//       });
-//       return createBlock('verbatim', lines);
-//     } else {
-//       return block;
-//     }
-//   });
-// }
+      return createBlock('verbatim', [
+        block.lines[0],
+        `~~~`,
+        ...lines,
+        `~~~`,
+      ]);
+    } else {
+      return block;
+    }
+  });
+}
 
 async function processRepl(blocks: AnyBlock[]): Promise<AnyBlock[]> {
   // Make a script by extracting shell input from code blocks.
@@ -221,5 +208,25 @@ function trimTrailingBlankLines(lines: string[]) {
   // Remove trailing blank lines.
   while (lines.length > 1 && lines[lines.length - 1].trim() === '') {
     lines.pop();
+  }
+}
+
+function leftJustify(text: string, width: number) {
+  if (text.length >= width) {
+    return text;
+  } else {
+    const paddingWidth = width - text.length;
+    const padding = new Array(paddingWidth + 1).join(' ');
+    return text + padding;
+  }
+}
+
+function rightJustify(text: string, width: number) {
+  if (text.length >= width) {
+    return text;
+  } else {
+    const paddingWidth = width - text.length;
+    const padding = new Array(paddingWidth + 1).join(' ');
+    return padding + text;
   }
 }

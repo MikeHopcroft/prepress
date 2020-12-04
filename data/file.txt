@@ -1,0 +1,13 @@
+// Sample file to include in code block
+
+function a() {
+  // test from included file
+}
+
+function b() {
+  // test from included file
+}
+
+function c() {
+  // test from included file
+}

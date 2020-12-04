@@ -3,6 +3,7 @@ import { PeekableSequence } from './peekable_sequence';
 // https://stackoverflow.com/questions/4823468/comments-in-markdown
 
 export enum CodeBlockType {
+  FILE,
   REPL,
   SPAWN,
   VERBATIM,
@@ -12,6 +13,12 @@ export enum CodeBlockType {
 export interface CodeBlock {
   type: CodeBlockType;
   lines: string[];
+}
+
+export interface FileBlock extends CodeBlock {
+  type: CodeBlockType.FILE;
+  file: string;
+  numbered: boolean;
 }
 
 export interface ReplBlock extends CodeBlock {
@@ -33,6 +40,7 @@ export interface WarningBlock extends CodeBlock {
 }
 
 export type AnyBlock =
+  | FileBlock
   | ReplBlock
   | SpawnBlock
   | VerbatimBlock
@@ -41,6 +49,18 @@ export type AnyBlock =
 export function createBlock(info: string, lines: string[]): AnyBlock {
   const terms = info.trim().split(/\s+/);
   switch (terms[0]) {
+    case 'file': {
+      const file = terms[1];
+
+      const numbered = (terms.length ===3 && terms[2] === 'numbered');
+      const block: FileBlock = {
+        type: CodeBlockType.FILE,
+        file,
+        lines,
+        numbered
+      };
+      return block;
+    }
     case 'repl': {
       const block: ReplBlock = {
         type: CodeBlockType.REPL,
@@ -53,7 +73,6 @@ export function createBlock(info: string, lines: string[]): AnyBlock {
         const message = 'spawn: expected an executable name';
         throw new TypeError(message);
       }
-      // console.log(`spawn: ${terms}`);
       const executable = terms[1];
       const args = terms.slice(2);
       const block: SpawnBlock = {

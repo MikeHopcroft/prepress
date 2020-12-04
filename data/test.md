@@ -15,8 +15,8 @@ $ dir /w
 [data]              LICENSE             [node_modules]      package-lock.json
 package.json        README.md           [src]               TODO.md
 tsconfig.json       
-              10 File(s)        111,053 bytes
-               7 Dir(s)  20,212,322,304 bytes free
+              10 File(s)        111,522 bytes
+               7 Dir(s)  20,211,896,320 bytes free
 
 ~~~
 
@@ -57,4 +57,23 @@ This is some text before a warning block.
 [//]: # (warning)
 ~~~
 Warning text
+~~~
+
+This is some text before an included file
+
+[//]: # (file data/file.txt)
+~~~
+ 0: // Sample file to include in code block
+ 1: 
+ 2: function a() {
+ 3:   // test from included file
+ 4: }
+ 5: 
+ 6: function b() {
+ 7:   // test from included file
+ 8: }
+ 9: 
+10: function c() {
+11:   // test from included file
+12: }
 ~~~
