@@ -1,4 +1,4 @@
-import { spawnSync } from 'child_process';
+import {spawnSync} from 'child_process';
 import * as fs from 'fs';
 import stripAnsi = require('strip-ansi');
 
@@ -10,7 +10,7 @@ import {
   ReplBlock,
 } from './markdown_parser';
 
-import { scriptHandshake } from './script_handshake';
+import {scriptHandshake} from './script_handshake';
 
 export async function updateMarkdown(text: string) {
   let blocks = parseMarkdown(text);
@@ -32,17 +32,12 @@ function processFile(blocks: AnyBlock[]): AnyBlock[] {
       // TODO: parameter to enable line numbering.
       const fieldWidth = lines.length.toString().length;
       if (block.numbered) {
-        lines = lines.map((l,i) => {
-          return rightJustify((i+1).toString(), fieldWidth) + ': ' + l;
+        lines = lines.map((l, i) => {
+          return rightJustify((i + 1).toString(), fieldWidth) + ': ' + l;
         });
       }
 
-      return createBlock('verbatim', [
-        block.lines[0],
-        `~~~`,
-        ...lines,
-        `~~~`,
-      ]);
+      return createBlock('verbatim', [block.lines[0], '~~~', ...lines, '~~~']);
     } else {
       return block;
     }
@@ -83,7 +78,6 @@ async function processRepl(blocks: AnyBlock[]): Promise<AnyBlock[]> {
           '~~~',
         ]);
       } else {
-        const s = outputSections[i];
         return createBlock('verbatim', ['~~~', ...outputSections[i++], '~~~']);
       }
     } else {
@@ -96,15 +90,15 @@ async function processSpawn(blocks: AnyBlock[]): Promise<AnyBlock[]> {
   return blocks.map(block => {
     if (block.type === CodeBlockType.SPAWN) {
       // console.log(`spawnSync(${block.executable},${block.args})`);
-      const program = spawnSync(block.executable, block.args, { shell: true });
+      const program = spawnSync(block.executable, block.args, {shell: true});
       const ostream = program.stdout;
 
       return createBlock('verbatim', [
         block.lines[0],
-        `~~~`,
+        '~~~',
         `$ ${block.executable} ${block.args.join(' ')}`,
         ostream.toString(),
-        `~~~`,
+        '~~~',
       ]);
     } else {
       return block;
@@ -115,7 +109,7 @@ async function processSpawn(blocks: AnyBlock[]): Promise<AnyBlock[]> {
 function processWarnings(blocks: AnyBlock[]): AnyBlock[] {
   return blocks.map(block => {
     if (block.type === CodeBlockType.WARNING) {
-      console.log(`WARNING: the following block may need manual fixup:`);
+      console.log('WARNING: the following block may need manual fixup:');
       for (const line of block.lines) {
         console.log('  ' + line);
       }
@@ -211,15 +205,15 @@ function trimTrailingBlankLines(lines: string[]) {
   }
 }
 
-function leftJustify(text: string, width: number) {
-  if (text.length >= width) {
-    return text;
-  } else {
-    const paddingWidth = width - text.length;
-    const padding = new Array(paddingWidth + 1).join(' ');
-    return text + padding;
-  }
-}
+// function leftJustify(text: string, width: number) {
+//   if (text.length >= width) {
+//     return text;
+//   } else {
+//     const paddingWidth = width - text.length;
+//     const padding = new Array(paddingWidth + 1).join(' ');
+//     return text + padding;
+//   }
+// }
 
 function rightJustify(text: string, width: number) {
   if (text.length >= width) {

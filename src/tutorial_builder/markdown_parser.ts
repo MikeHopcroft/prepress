@@ -1,4 +1,4 @@
-import { PeekableSequence } from './peekable_sequence';
+import {PeekableSequence} from './peekable_sequence';
 
 // https://stackoverflow.com/questions/4823468/comments-in-markdown
 
@@ -52,12 +52,12 @@ export function createBlock(info: string, lines: string[]): AnyBlock {
     case 'file': {
       const file = terms[1];
 
-      const numbered = (terms.length ===3 && terms[2] === 'numbered');
+      const numbered = terms.length === 3 && terms[2] === 'numbered';
       const block: FileBlock = {
         type: CodeBlockType.FILE,
         file,
         lines,
-        numbered
+        numbered,
       };
       return block;
     }
@@ -97,9 +97,10 @@ export function createBlock(info: string, lines: string[]): AnyBlock {
       };
       return block;
     }
-    default:
+    default: {
       const message = `Unknown code block annotation "${terms[0]}"`;
       throw new TypeError(message);
+    }
   }
 }
 
@@ -112,7 +113,7 @@ export function createBlock(info: string, lines: string[]): AnyBlock {
 //
 ///////////////////////////////////////////////////////////////////////////////
 export function parseMarkdown(text: string): AnyBlock[] {
-  const input = new PeekableSequence(text.split(/\r?\n/g).values());
+  const input = new PeekableSequence(text.split(/\r?\n/).values());
   const blocks: AnyBlock[] = [];
 
   parseRoot();
