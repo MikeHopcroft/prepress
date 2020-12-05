@@ -1,5 +1,10 @@
 # TODO List
 
+* Set up unit testing
+* Escaping ~~~ in code blocks
+  * ~~~yaml
+  * Detect codeblock as /^~~~~*/
+  * Find sequence of three or more ~ not in the code block
 * README.md
 * Better error translation
   * Error: cannot lstat "documentation/src/getting_labyrinth.src.md".
@@ -8,9 +13,6 @@
 * Escaping arguments to file, spawn, repl, etc.
   * Spaces, backlashes
   * Consider using json
-* Escaping ~~~ in code blocks
-  * Detect codeblock as /^~~~~*/
-  * Find sequence of three or more ~ not in the code block
 * x processFile
   * x Displays contents of a file
   * x Can add line numbers

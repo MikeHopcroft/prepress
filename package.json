@@ -14,7 +14,7 @@
   ],
   "repository": "https://github.com/MikeHopcroft/prepress",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha 'build/test/**/*.js'",
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "tsc",
@@ -24,10 +24,14 @@
     "posttest": "npm.cmd run lint"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.14",
     "@types/command-line-usage": "^5.0.1",
+    "@types/mocha": "^8.0.4",
     "@types/node": "^14.11.2",
     "@types/recursive-readdir": "^2.2.0",
+    "chai": "^4.2.0",
     "gts": "^3.0.3",
+    "mocha": "^8.2.1",
     "typescript": "^4.0.3"
   },
   "dependencies": {
