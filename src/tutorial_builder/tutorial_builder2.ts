@@ -1,5 +1,6 @@
-import {spawnSync} from 'child_process';
-import * as fs from 'fs';
+import {fileProcessor2} from './file_processor';
+import {spawnProcessor2} from './spawn_processor';
+import {verbatimProcessor2} from './verbatim_processor';
 
 import {
   AnySection,
@@ -14,12 +15,12 @@ import {
 // updateMarkdown2
 //
 ///////////////////////////////////////////////////////////////////////////////
-interface Entry {
+export interface Entry {
   index: number;
   block: CodeBlockSection;
 }
 
-type Processor = (blocks: AnySection[], group: Entry[]) => void;
+export type Processor = (blocks: AnySection[], group: Entry[]) => void;
 
 const processors = new Map<string, Processor>([
   ['file', fileProcessor2],
@@ -69,7 +70,10 @@ function combine2(blocks: AnySection[]): string {
   return lines.join('\n');
 }
 
-function makeBlock(block: CodeBlockSection, lines: string[]): TextSection {
+export function makeBlock(
+  block: CodeBlockSection,
+  lines: string[]
+): TextSection {
   // TODO: choose alternate open/close based on contents
   // of body (e.g. if body has ~~~, use ~~~~).
 
@@ -81,102 +85,4 @@ function makeBlock(block: CodeBlockSection, lines: string[]): TextSection {
   ];
 
   return {type: SectionType.TEXT, body};
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// Processors
-//
-///////////////////////////////////////////////////////////////////////////////
-function fileProcessor2(blocks: AnySection[], group: Entry[]) {
-  for (const entry of group) {
-    const block = entry.block;
-    const [[file], [numbered]] = parseArgs(
-      block.command,
-      1,
-      true,
-      block.parameters
-    );
-
-    let body = fs.readFileSync(file, 'utf-8').split(/\r?\n/);
-
-    if (numbered) {
-      const fieldWidth = body.length.toString().length;
-      body = body.map((l, i) => {
-        return rightJustify((i + 1).toString(), fieldWidth) + ': ' + l;
-      });
-    }
-
-    blocks[entry.index] = makeBlock(block, body);
-  }
-}
-
-function spawnProcessor2(blocks: AnySection[], group: Entry[]) {
-  for (const entry of group) {
-    const block = entry.block;
-    // TODO: better param splitting.
-    const params = block.parameters.split(/\s+/);
-    if (params.length < 1) {
-      const message = `${block.command}: expected an executable name`;
-      throw new TypeError(message);
-    }
-    const executable = params[0];
-    const args = params.slice(1);
-
-    const program = spawnSync(executable, args, {shell: false});
-    if (program.error) {
-      throw program.error;
-    }
-    const body = [
-      // TODO: escape args
-      `$ ${executable} ${args.join(' ')}`,
-      program.stdout.toString(),
-    ];
-
-    blocks[entry.index] = makeBlock(block, body);
-  }
-}
-
-function verbatimProcessor2(blocks: AnySection[], group: Entry[]) {
-  for (const entry of group) {
-    const block = entry.block;
-
-    const body: string[] = [block.open, ...block.body, block.close];
-
-    blocks[entry.index] = {type: SectionType.TEXT, body};
-  }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// Utility functions
-//
-///////////////////////////////////////////////////////////////////////////////
-function rightJustify(text: string, width: number) {
-  if (text.length >= width) {
-    return text;
-  } else {
-    const paddingWidth = width - text.length;
-    const padding = new Array(paddingWidth + 1).join(' ');
-    return padding + text;
-  }
-}
-
-function parseArgs(
-  command: string,
-  required: number,
-  restAllowed: boolean,
-  text: string
-): [string[], string[]] {
-  const args = text.split(/\s+/);
-  if (args.length < required) {
-    const message = `${command}: parameters missing (expected ${required}).`;
-    throw new TypeError(message);
-  }
-  if (args.length > required && !restAllowed) {
-    const message = `${command}: found extra parameters (expected ${required}).`;
-    throw new TypeError(message);
-  }
-
-  return [args.slice(0, required), args.slice(required)];
 }
