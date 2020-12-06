@@ -1,38 +1,63 @@
 # TODO List
 
-* Set up unit testing
+before
+
+[//]: # (spawn node build/test/tutorial_builder/test.js)
+
+after
+
+* Optional parameters for file, spawn, interactive, etc
+  * Consider using minimist
+    * What if spawn process arguments conflict?
+    * x Is it possible to have one minimist per processor? Yes.
+  * Common parsing function
+* Escaping arguments to file, spawn, repl, etc.
+  * Spaces, backlashes
+  * Consider using json
 * Escaping ~~~ in code blocks
-  * ~~~yaml
-  * Detect codeblock as /^~~~~*/
+  * x ~~~yaml
+  * x Detect codeblock as /^~~~~*/
   * Find sequence of three or more ~ not in the code block
+  * Choose appropriate open/close sequence based on body contents (e.g body contains ~~~ so use ~~~~)
 * README.md
+* Figure out how to make a simpler executable command than
+  * node build/src/apps/prepress.js
 * Better error translation
   * Error: cannot lstat "documentation/src/getting_labyrinth.src.md".
 * Better error handling in parser
   * Check number of arguments
-* Escaping arguments to file, spawn, repl, etc.
-  * Spaces, backlashes
-  * Consider using json
 * x processFile
+  * Syntax
+    * file <filename> [-n]
   * x Displays contents of a file
   * x Can add line numbers
 * processSpawn
-  * User should be able to specify whether to use shell.
-  * User should be able to specify prompt.
-  * Escape ~~~ in ostream.
-  * Allow multiple commands in same block.
-  * Does not seem to emit header comment.
+  * Syntax
+    * spawn <prompt> <executable> <param>*
+    * exec <prompt> <executable> <param>*
+  * Specify whether to use shell.
+    * Could have a different command name, instead of a parameter.
+    * This would avoid conflict between command params and executable params.
+  * Specify prompt.
   * Catch and report errors
+  * Display stderr?
+  * Allow multiple commands in same block. ???
   * Deal with forward and backwards slashes in spawn arguments
     * Needs to work on Windows and Linux
+  * x Does not seem to emit header comment.
 * processRepl
+  * Syntax
+    * interactive <prompt:%> <session:one> <exit:exit> <executable> <param>*
   * Rename repl mode to spawnInteractive or interactive?
-  * Should be able to use shell or interactive program
-  * Should be able to specify prompt regex.
+  * Specify shell or interactive program
+  * Specify prompt regex
+  * Specify session
+  * Specify exit command
+  * Specify whether to display exit command - could exit automatically, and only show if it appears in the input block
+  * Specity suppress welcome/prologue - could use prompt on first line, vs later line to specify
   * Need some way of ending interactive session - perhaps put command in header.
   * Need some way to combine multiple, named blocks into a single session
-* Pluggable block types
+* . Pluggable block types
 * tutorial_builder - rename?
-* Figure out how to make a simpler executable command than
-  * node build/src/apps/prepress.js
+* x Set up unit testing
 

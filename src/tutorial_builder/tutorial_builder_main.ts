@@ -8,6 +8,7 @@ import * as recursiveReaddir from 'recursive-readdir';
 
 import {fail, handleError, succeed} from './handle-errors';
 import {updateMarkdown} from './tutorial_builder';
+import {updateMarkdown3} from './tutorial_builder2';
 
 export async function tutorialBuilderMain() {
   dotenv.config();
@@ -165,7 +166,7 @@ async function convertFile(inFile: string, outFile: string, dryrun: boolean) {
   }
 
   const text = fs.readFileSync(inFile, 'utf8');
-  const updatedText = await updateMarkdown(text);
+  const updatedText = await updateMarkdown3(text);
 
   if (dryrun) {
     console.log(updatedText);
