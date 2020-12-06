@@ -1,4 +1,4 @@
-import { PeekableSequence } from './peekable_sequence';
+import {PeekableSequence} from './peekable_sequence';
 
 // https://stackoverflow.com/questions/4823468/comments-in-markdown
 
@@ -226,14 +226,14 @@ export function parseMarkdown2(text: string): AnySection[] {
   return blocks;
 
   function parseRoot() {
-    let current: TextSection = { type: SectionType.TEXT, body: [] };
+    let current: TextSection = {type: SectionType.TEXT, body: []};
     blocks.push(current);
 
     while (!input!.atEOS()) {
       const block = tryParseHeaderAndBlock();
       if (block) {
         blocks.push(block);
-        current = { type: SectionType.TEXT, body: [] }
+        current = {type: SectionType.TEXT, body: []};
         blocks.push(current);
       } else {
         current.body.push(input.get());
@@ -263,8 +263,8 @@ export function parseMarkdown2(text: string): AnySection[] {
   }
 
   function tryParseBlock(
-    command: string = 'verbatim',
-    parameters: string = ''
+    command = 'verbatim',
+    parameters = ''
   ): CodeBlockSection | undefined {
     const open = input.peek();
     const matchOpen = open.match(/(~~~~*)(.*)/);
@@ -281,7 +281,7 @@ export function parseMarkdown2(text: string): AnySection[] {
       if (matchClose && matchClose[1] === matchOpen[1]) {
         const close = matchClose[1];
         input.get();
-        return { type: SectionType.CODE, command, parameters, open, body, close };
+        return {type: SectionType.CODE, command, parameters, open, body, close};
       } else {
         body.push(input.get());
       }

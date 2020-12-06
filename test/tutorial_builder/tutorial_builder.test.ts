@@ -5,7 +5,7 @@ import 'mocha';
 
 chai.use(chaiAsPromised);
 
-import { updateMarkdown3 } from '../../src/tutorial_builder/tutorial_builder2';
+import {updateMarkdown3} from '../../src/tutorial_builder/tutorial_builder2';
 
 describe('Tutorial builder', () => {
   it('bad block', async () => {
@@ -98,7 +98,9 @@ describe('Tutorial builder', () => {
         Text after file block
       `);
 
-      const expected = stripLeadingChars(8, `\
+      const expected = stripLeadingChars(
+        8,
+        `\
         Text before file block
       
         [//]: # (file test/tutorial_builder/test.txt numbered)
@@ -117,7 +119,8 @@ describe('Tutorial builder', () => {
         ~~~
       
         Text after file block
-      `);
+      `
+      );
 
       const observed = await updateMarkdown3(markdown);
       assert.equal(observed, expected);
@@ -178,7 +181,7 @@ describe('Tutorial builder', () => {
 
       await assert.isRejected(
         updateMarkdown3(markdown),
-        "spawnSync executable_does_not_exist ENOENT"
+        'spawnSync executable_does_not_exist ENOENT'
       );
 
       // assert.throws(async () => await updateMarkdown(markdown));
@@ -261,10 +264,8 @@ export function stripLeadingSpaces(text: string) {
 }
 
 export function stripLeadingChars(count: number, text: string) {
-  return (
-    text
-      .split(/\r?\n/)
-      .map(l => l.slice(count))
-      .join('\n')
-  );
+  return text
+    .split(/\r?\n/)
+    .map(l => l.slice(count))
+    .join('\n');
 }

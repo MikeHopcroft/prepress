@@ -7,7 +7,6 @@ import * as path from 'path';
 import * as recursiveReaddir from 'recursive-readdir';
 
 import {fail, handleError, succeed} from './handle-errors';
-import {updateMarkdown} from './tutorial_builder';
 import {updateMarkdown3} from './tutorial_builder2';
 
 export async function tutorialBuilderMain() {

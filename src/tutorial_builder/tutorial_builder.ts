@@ -8,14 +8,6 @@ import {
   createBlock,
   parseMarkdown,
   ReplBlock,
-  TextSection,
-} from './markdown_parser';
-
-import {
-  AnySection,
-  CodeBlockSection,
-  parseMarkdown2,
-  SectionType,
 } from './markdown_parser';
 
 import {scriptHandshake} from './script_handshake';
@@ -309,7 +301,7 @@ function rightJustify(text: string, width: number) {
 //   // })\n${
 //   //   block.open
 //   // }\n${
-    
+
 //   // }\n${
 //   //   block.close
 //   // }`;

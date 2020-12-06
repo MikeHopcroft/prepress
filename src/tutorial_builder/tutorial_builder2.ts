@@ -6,7 +6,7 @@ import {
   CodeBlockSection,
   parseMarkdown2,
   SectionType,
-  TextSection
+  TextSection,
 } from './markdown_parser';
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@ import {
 interface Entry {
   index: number;
   block: CodeBlockSection;
-};
+}
 
 type Processor = (blocks: AnySection[], group: Entry[]) => void;
 
@@ -35,7 +35,7 @@ async function updateMarkdown2(
   processors: Map<string, Processor>,
   text: string
 ): Promise<string> {
-  let blocks = parseMarkdown2(text);
+  const blocks = parseMarkdown2(text);
 
   const groups = new Map<string, Entry[]>();
   for (const [index, block] of blocks.entries()) {
@@ -77,10 +77,10 @@ function makeBlock(block: CodeBlockSection, lines: string[]): TextSection {
     `[//]: # (${block.command} ${block.parameters})`,
     block.open,
     ...lines,
-    block.close
+    block.close,
   ];
 
-  return { type: SectionType.TEXT, body };
+  return {type: SectionType.TEXT, body};
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -91,7 +91,12 @@ function makeBlock(block: CodeBlockSection, lines: string[]): TextSection {
 function fileProcessor2(blocks: AnySection[], group: Entry[]) {
   for (const entry of group) {
     const block = entry.block;
-    const [[file], [numbered]] = parseArgs(block.command, 1, true, block.parameters);
+    const [[file], [numbered]] = parseArgs(
+      block.command,
+      1,
+      true,
+      block.parameters
+    );
 
     let body = fs.readFileSync(file, 'utf-8').split(/\r?\n/);
 
@@ -136,13 +141,9 @@ function verbatimProcessor2(blocks: AnySection[], group: Entry[]) {
   for (const entry of group) {
     const block = entry.block;
 
-    const body: string[] = [
-      block.open,
-      ...block.body,
-      block.close
-    ];
-  
-    blocks[entry.index] = { type: SectionType.TEXT, body };
+    const body: string[] = [block.open, ...block.body, block.close];
+
+    blocks[entry.index] = {type: SectionType.TEXT, body};
   }
 }
 
@@ -165,7 +166,7 @@ function parseArgs(
   command: string,
   required: number,
   restAllowed: boolean,
-  text:string
+  text: string
 ): [string[], string[]] {
   const args = text.split(/\s+/);
   if (args.length < required) {
@@ -177,8 +178,5 @@ function parseArgs(
     throw new TypeError(message);
   }
 
-  return [
-    args.slice(0, required),
-    args.slice(required)
-  ];
+  return [args.slice(0, required), args.slice(required)];
 }
