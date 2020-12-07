@@ -17,6 +17,20 @@
       "outFiles": [
         "${workspaceFolder}/build/**/*.js"
       ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "interactive_processor",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}/build/src/tutorial_builder/interactive_processor.js",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": [
+        "${workspaceFolder}/build/**/*.js"
+      ]
     }
+
   ]
 }
