@@ -12,7 +12,7 @@
         "<node_internals>/**"
       ],
       "program": "${workspaceFolder}/build/src/apps/prepress.js",
-      "args": ["data/test.src.md", "-d"],
+      "args": ["data/i.src.md", "-d"],
       "preLaunchTask": "tsc: build - tsconfig.json",
       "outFiles": [
         "${workspaceFolder}/build/**/*.js"

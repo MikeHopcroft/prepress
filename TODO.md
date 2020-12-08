@@ -6,6 +6,8 @@ before
 
 after
 
+* Bug
+  * WHY_DOES_THIS_WORK[//]: # (spawn dir /w)
 * Optional parameters for file, spawn, interactive, etc
   * Consider using minimist
     * What if spawn process arguments conflict?

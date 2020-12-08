@@ -2,7 +2,7 @@
 
 This is some text before a spawn block.
 
-[//]: # (spawn dir /w)
+WHY_DOES_THIS_WORK[//]: # (spawn dir /w)
 ~~~
 ~~~
 
@@ -27,7 +27,7 @@ This is some text before a warning block.
 Warning text
 ~~~
 
-This is some text before an included file
+This is xsome text before an included file
 
 [//]: # (file data/file.txt)
 ~~~

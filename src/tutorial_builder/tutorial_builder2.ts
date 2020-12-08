@@ -9,6 +9,7 @@ import {
   SectionType,
   TextSection,
 } from './markdown_parser';
+import { interactiveProcessor } from './interactive_processor';
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -24,6 +25,7 @@ export type Processor = (blocks: AnySection[], group: Entry[]) => void;
 
 const processors = new Map<string, Processor>([
   ['file', fileProcessor2],
+  ['interactive', interactiveProcessor],
   ['spawn', spawnProcessor2],
   ['verbatim', verbatimProcessor2],
 ]);

@@ -2,24 +2,6 @@
 
 This is some text before a spawn block.
 
-[//]: # (spawn dir /w)
-~~~
-$ dir /w
- Volume in drive D is Data
- Volume Serial Number is A442-8067
-
- Directory of D:\git\prepress
-
-[.]                 [..]                .eslintignore       .eslintrc.json
-.gitignore          .prettierrc.js      [.vscode]           [build]
-[data]              LICENSE             [node_modules]      package-lock.json
-package.json        README.md           [src]               TODO.md
-tsconfig.json       
-              10 File(s)        111,522 bytes
-               7 Dir(s)  20,211,896,320 bytes free
-
-~~~
-
 Here is prepress
 
 [//]: # (spawn node build\src\apps\prepress.js -h)
@@ -59,21 +41,21 @@ This is some text before a warning block.
 Warning text
 ~~~
 
-This is some text before an included file
+This is xsome text before an included file
 
 [//]: # (file data/file.txt)
 ~~~
- 0: // Sample file to include in code block
- 1: 
- 2: function a() {
- 3:   // test from included file
- 4: }
- 5: 
- 6: function b() {
- 7:   // test from included file
- 8: }
- 9: 
-10: function c() {
-11:   // test from included file
-12: }
+// Sample file to include in code block
+
+function a() {
+  // test from included file
+}
+
+function b() {
+  // test from included file
+}
+
+function c() {
+  // test from included file
+}
 ~~~

@@ -246,6 +246,38 @@ describe('Tutorial builder', () => {
       assert.equal(observed, expected);
     });
   });
+
+  
+  describe('interactive block', () => {
+    it('test', async () => {
+      const markdown = stripLeadingSpaces(`\
+        Text before interactive block
+
+        [//]: # (interactive one > node)
+        ~~~
+        a = 1+2
+        b = 3
+        a + b
+        ~~~
+      
+        Text after interactive block
+      `);
+
+      const expected = stripLeadingSpaces(`\
+        Text before verbatim block
+      
+        ~~~
+        one
+        two
+        ~~~
+      
+        Text after verbatim block
+      `);
+
+      const observed = await updateMarkdown3(markdown);
+      assert.equal(observed, expected);
+    });
+  });
 });
 
 ///////////////////////////////////////////////////////////////////////////////
