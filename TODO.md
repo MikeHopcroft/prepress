@@ -6,13 +6,18 @@ before
 
 after
 
+* Figure out how to specify spaces in prompt
+  * Allow quoted strings and escaped quotes?
+* Prompt detection should fail
+  * After too much time. Perhaps have a -timeout parameter.
+  * After too many characters
 * Bug
   * WHY_DOES_THIS_WORK[//]: # (spawn dir /w)
 * Optional parameters for file, spawn, interactive, etc
   * Consider using minimist
     * What if spawn process arguments conflict?
     * x Is it possible to have one minimist per processor? Yes.
-  * Common parsing function
+  * x Common parsing function
 * Escaping arguments to file, spawn, repl, etc.
   * Spaces, backlashes
   * Consider using json

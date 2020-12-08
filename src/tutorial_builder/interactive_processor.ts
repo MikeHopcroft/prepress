@@ -51,6 +51,7 @@ async function processSession(blocks: AnySection[], group: Entry[]) {
 
   // Build CmdGeneratorFactory.
   const factory: CmdGeneratorFactory = (prologue: string) => {
+    // TODO: remove the prompt + space hack
     return cmdGenerator(blocks, prompt + ' ', group, prologue);
   }
 
@@ -89,12 +90,12 @@ function* cmdGenerator(
     // Run commands.
     for (const command of commands) {
       const output = yield command;
-      // TODO: trim prompt off of last line.
-      bodyFragments.push(command + '\n' + output)
+      bodyFragments.push(command + '\n' + output.slice())
     }
 
     // Update the block.
-    const body = [bodyFragments.join('')];
+    // NOTE: slice() on next line trims off final prompt and newline.
+    const body = [bodyFragments.join('').slice(0, -prompt.length - 1)];
     blocks[entry.index] = makeBlock(block, body);
   }
 }
@@ -176,84 +177,3 @@ function startSession(
     }
   });
 }
-
-const transcript: string[] = [];
-
-async function testSession2(
-  prompt: string,
-  executable: string,
-  args: string[],
-  commands: string[]
-) {
-  function* generator(): Generator<string, void, string> {
-    console.log('generator()');
-    for (const command of commands) {
-      console.log(`yield "${command}"`);
-      const output = yield command;
-      console.log(`yield returns "${output}"`);
-
-      transcript.push(command + '\n' + output);
-      // transcript.push(output);
-
-      console.log('=== output ===');
-      console.log(output);
-      console.log('=== command ===');
-      console.log(command);
-    }
-  }
-
-  function generatorFactory(prologue: string): Generator<string, void, string> {
-    console.log(prologue);
-    transcript.push(prologue);
-    return generator();
-  }
-
-  console.log('here');
-  const output = await startSession(
-    prompt,
-    executable,
-    args,
-    generatorFactory
-  );
-  console.log('=== output ===');
-  console.log(output);
-  transcript.push(output);
-}
-
-
-// // Works
-// testSession(
-//   '% ',
-//   'node.exe',
-//   [
-//     'd:\\git\\menubot\\ShortOrder\\build\\samples\\repl.js',
-//     '-d=d:\\git\\menubot\\shortorder\\samples\\menu',
-//     '-x'
-//   ],
-//   [
-//     '1+2',
-//     '.help'
-//   ]
-// );
-
-async function go() {
-  console.log('go()');
-  await testSession2(
-    '> ',
-    'node.exe',
-    [
-      '-i',
-    ],
-    [
-      '1+2',
-      '.help'
-    ]
-  );
-  console.log('==========================');
-  console.log(transcript.join(''));
-  // for (const line of transcript) {
-  //   console.log(line);
-  // }
-}
-
-// go();

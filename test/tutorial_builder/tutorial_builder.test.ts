@@ -249,30 +249,40 @@ describe('Tutorial builder', () => {
 
   
   describe('interactive block', () => {
-    it('test', async () => {
+    it('no prologue', async () => {
       const markdown = stripLeadingSpaces(`\
         Text before interactive block
 
-        [//]: # (interactive one > node)
+        [//]: # (interactive one > node.exe -i)
         ~~~
-        a = 1+2
-        b = 3
-        a + b
+        > a = 1+2
+        > b = 3
+        > a + b
         ~~~
       
         Text after interactive block
       `);
 
       const expected = stripLeadingSpaces(`\
-        Text before verbatim block
+        Text before interactive block
       
+        [//]: # (interactive one > node.exe -i)
         ~~~
-        one
-        two
+        > a = 1+2
+        3
+        > b = 3
+        3
+        > a + b
+        6
         ~~~
       
-        Text after verbatim block
+        Text after interactive block
       `);
+
+      // TODO:
+      //   Multiple sessions
+      //   Show prologue
+      //   Shell mode
 
       const observed = await updateMarkdown3(markdown);
       assert.equal(observed, expected);
