@@ -5,11 +5,7 @@ import {spawn} from 'child_process';
 function go(executable: string, args: string[], shell: boolean) {
   console.log('1: enter go()');
 
-  const subprocess = spawn(
-    executable,
-    args,
-    {shell, windowsHide: false}
-  );
+  const subprocess = spawn(executable, args, {shell, windowsHide: false});
   console.log(`7: after spawn, pid=${subprocess.pid}`);
 
   // subprocess.stdin.write('.help\n');
@@ -36,7 +32,8 @@ function go(executable: string, args: string[], shell: boolean) {
     console.log(`3: close(${code})`);
   });
 
-  subprocess.on('error', (err) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  subprocess.on('error', err => {
     console.error('5: Failed to start subprocess.');
   });
 

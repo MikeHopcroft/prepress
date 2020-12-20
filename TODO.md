@@ -1,13 +1,16 @@
 # TODO List
 
-before
-
-[//]: # (spawn node build/test/tutorial_builder/test.js)
-
-after
-
+* Top
+  * Argument parser allows quoting - for spaces in prompt
+  * Hang detection timeout
+  * Specify shell for spawn and interactive
+  * README.md
+  * tutorial.md
+* Travis + badges
+* NYC + badges
 * Figure out how to specify spaces in prompt
   * Allow quoted strings and escaped quotes?
+  * Escape sequence for \" and \n
 * Prompt detection should fail
   * After too much time. Perhaps have a -timeout parameter.
   * After too many characters

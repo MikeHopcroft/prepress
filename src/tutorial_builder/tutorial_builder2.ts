@@ -9,7 +9,7 @@ import {
   SectionType,
   TextSection,
 } from './markdown_parser';
-import { interactiveProcessor } from './interactive_processor';
+import {interactiveProcessor} from './interactive_processor';
 
 ///////////////////////////////////////////////////////////////////////////////
 //

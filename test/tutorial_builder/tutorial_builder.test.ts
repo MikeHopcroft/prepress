@@ -247,7 +247,6 @@ describe('Tutorial builder', () => {
     });
   });
 
-  
   describe('interactive block', () => {
     it('no prologue', async () => {
       const markdown = stripLeadingSpaces(`\

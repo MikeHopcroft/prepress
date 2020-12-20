@@ -21,6 +21,7 @@ function groupBySession(group: Entry[]) {
   const sessions = new Map<string, Entry[]>();
   for (const entry of group) {
     const block = entry.block;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [[prompt, sessionId, executable], args] = parseArgs(
       block.parameters,
       3,
@@ -38,10 +39,11 @@ function groupBySession(group: Entry[]) {
 }
 
 type CmdGenerator = Generator<string, void, string>;
-type CmdGeneratorFactory = (prologue: string) => Generator<string, void, string>;
+type CmdGeneratorFactory = (prologue: string) => CmdGenerator;
 
 async function processSession(blocks: AnySection[], group: Entry[]) {
   const block = group[0].block;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [[session, prompt, executable], args] = parseArgs(
     block.command,
     3,
@@ -53,9 +55,10 @@ async function processSession(blocks: AnySection[], group: Entry[]) {
   const factory: CmdGeneratorFactory = (prologue: string) => {
     // TODO: remove the prompt + space hack
     return cmdGenerator(blocks, prompt + ' ', group, prologue);
-  }
+  };
 
   // TODO: remove the prompt + space hack
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const output = await startSession(prompt + ' ', executable, args, factory);
 }
 
@@ -90,7 +93,7 @@ function* cmdGenerator(
     // Run commands.
     for (const command of commands) {
       const output = yield command;
-      bodyFragments.push(command + '\n' + output.slice())
+      bodyFragments.push(command + '\n' + output.slice());
     }
 
     // Update the block.
@@ -111,7 +114,7 @@ function startSession(
   return new Promise<string>((resolve, reject) => {
     try {
       let commands: Generator<string, void, string> | undefined = undefined;
-      const program = spawn(executable, args, { shell: false });
+      const program = spawn(executable, args, {shell: false});
       const iStream = program.stdin;
       const oStream = program.stdout;
 
@@ -125,8 +128,9 @@ function startSession(
       // Initialize to zero initially to allow prompts at the first
       // character position in the stream.
       let nextMatch: number | undefined = 0;
-      let text: string = '';
+      let text = '';
 
+      // eslint-disable-next-line no-inner-declarations
       function process(c: string) {
         text += c;
         if (c === '\n' || c === '\r') {
@@ -169,6 +173,7 @@ function startSession(
         }
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       program.on('close', (code: number) => {
         resolve(text);
       });
