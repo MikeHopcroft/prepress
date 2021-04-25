@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 
 import {AnySection} from './markdown_parser';
-import {Entry, makeBlock} from './tutorial_builder2';
+import {Entry, makeBlock} from './tutorial_builder';
 import {parseArgs, rightJustify} from './utilities';
 
 export function fileProcessor(blocks: AnySection[], group: Entry[]) {

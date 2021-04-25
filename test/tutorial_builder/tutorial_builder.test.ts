@@ -5,7 +5,7 @@ import 'mocha';
 
 chai.use(chaiAsPromised);
 
-import {updateMarkdown3} from '../../src/tutorial_builder/tutorial_builder2';
+import {updateMarkdown} from '../../src/tutorial_builder/tutorial_builder';
 
 describe('Tutorial builder', () => {
   it('bad block', async () => {
@@ -22,7 +22,7 @@ describe('Tutorial builder', () => {
     `);
 
     await assert.isRejected(
-      updateMarkdown3(markdown),
+      updateMarkdown(markdown),
       'Unknown block type "bad_command_name"'
     );
   });
@@ -42,7 +42,7 @@ describe('Tutorial builder', () => {
       `);
 
       await assert.isRejected(
-        updateMarkdown3(markdown),
+        updateMarkdown(markdown),
         "ENOENT: no such file or directory, open 'bad_file_name'"
       );
     });
@@ -81,7 +81,7 @@ describe('Tutorial builder', () => {
         Text after file block
       `);
 
-      const observed = await updateMarkdown3(markdown);
+      const observed = await updateMarkdown(markdown);
       assert.equal(observed, expected);
     });
 
@@ -122,7 +122,7 @@ describe('Tutorial builder', () => {
       `
       );
 
-      const observed = await updateMarkdown3(markdown);
+      const observed = await updateMarkdown(markdown);
       assert.equal(observed, expected);
     });
 
@@ -160,7 +160,7 @@ describe('Tutorial builder', () => {
         Text after file block
       `);
 
-      const observed = await updateMarkdown3(markdown);
+      const observed = await updateMarkdown(markdown);
       assert.equal(observed, expected);
     });
   });
@@ -180,7 +180,7 @@ describe('Tutorial builder', () => {
       `);
 
       await assert.isRejected(
-        updateMarkdown3(markdown),
+        updateMarkdown(markdown),
         'script returned non-zero status 1'
       );
     });
@@ -211,7 +211,7 @@ describe('Tutorial builder', () => {
         Text after script block
       `);
 
-      const result = await updateMarkdown3(markdown);
+      const result = await updateMarkdown(markdown);
       const observed = result.replace(/(\d+\.\d+\.\d+)/, 'X.Y.Z');
       assert.equal(observed, expected);
     });
@@ -232,7 +232,7 @@ describe('Tutorial builder', () => {
       `);
 
       await assert.isRejected(
-        updateMarkdown3(markdown),
+        updateMarkdown(markdown),
         'spawnSync executable_does_not_exist ENOENT'
       );
     });
@@ -263,7 +263,7 @@ describe('Tutorial builder', () => {
         Text after spawn block
       `);
 
-      const observed = await updateMarkdown3(markdown);
+      const observed = await updateMarkdown(markdown);
       assert.equal(observed, expected);
     });
   });
@@ -292,7 +292,7 @@ describe('Tutorial builder', () => {
         Text after verbatim block
       `);
 
-      const observed = await updateMarkdown3(markdown);
+      const observed = await updateMarkdown(markdown);
       assert.equal(observed, expected);
     });
   });
@@ -333,7 +333,7 @@ describe('Tutorial builder', () => {
       //   Show prologue
       //   Shell mode
 
-      const observed = await updateMarkdown3(markdown);
+      const observed = await updateMarkdown(markdown);
       assert.equal(observed, expected);
     });
   });

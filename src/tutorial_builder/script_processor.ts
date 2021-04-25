@@ -1,7 +1,7 @@
 import {spawnSync} from 'child_process';
 
 import {AnySection} from './markdown_parser';
-import {Entry, makeBlock} from './tutorial_builder2';
+import {Entry, makeBlock} from './tutorial_builder';
 import {parseArgs} from './utilities';
 
 export function scriptProcessor(blocks: AnySection[], group: Entry[]) {

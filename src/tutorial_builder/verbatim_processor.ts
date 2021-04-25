@@ -1,5 +1,5 @@
 import {AnySection, SectionType} from './markdown_parser';
-import {Entry} from './tutorial_builder2';
+import {Entry} from './tutorial_builder';
 
 export function verbatimProcessor(blocks: AnySection[], group: Entry[]) {
   for (const entry of group) {
