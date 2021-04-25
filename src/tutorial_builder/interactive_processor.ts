@@ -9,7 +9,7 @@ export async function interactiveProcessor(
   blocks: AnySection[],
   group: Entry[]
 ) {
-  console.log('interactiveProcessor()');
+  // console.log('interactiveProcessor()');
   const sessions = groupBySession(group);
 
   for (const session of sessions.values()) {
@@ -68,7 +68,7 @@ function* cmdGenerator(
   group: Entry[],
   prologue: string
 ): Generator<string, void, string> {
-  console.log(`cmdGenerator: prompt="${prompt}", prologue="${prologue}"`);
+  // console.log(`cmdGenerator: prompt="${prompt}", prologue="${prologue}"`);
   const keepPrologue = !group[0].block.body[0].startsWith(prompt);
   for (const [index, entry] of group.entries()) {
     const block = entry.block;
@@ -109,7 +109,7 @@ function startSession(
   args: string[],
   factory: CmdGeneratorFactory
 ): Promise<string> {
-  console.log(`session("${prompt}", "${executable}", "${args}")`);
+  // console.log(`session("${prompt}", "${executable}", "${args}")`);
 
   return new Promise<string>((resolve, reject) => {
     try {
@@ -148,7 +148,7 @@ function startSession(
               commands = factory(text);
             }
 
-            console.log(`commands.next("${text}")`);
+            // console.log(`commands.next("${text}")`);
             const curr = commands.next(text);
             if (curr.done) {
               iStream.end();
@@ -167,7 +167,7 @@ function startSession(
 
       oStream.on('data', (data: Buffer) => {
         const text = data.toString('utf8');
-        console.log(`oStream: "${text}"`);
+        // console.log(`oStream: "${text}"`);
         for (const c of text) {
           process(c);
         }

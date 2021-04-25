@@ -1,7 +1,7 @@
 import {AnySection, SectionType} from './markdown_parser';
 import {Entry} from './tutorial_builder2';
 
-export function verbatimProcessor2(blocks: AnySection[], group: Entry[]) {
+export function verbatimProcessor(blocks: AnySection[], group: Entry[]) {
   for (const entry of group) {
     const block = entry.block;
 

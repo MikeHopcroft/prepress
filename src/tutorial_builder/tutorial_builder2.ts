@@ -1,6 +1,7 @@
-import {fileProcessor2} from './file_processor';
-import {spawnProcessor2} from './spawn_processor';
-import {verbatimProcessor2} from './verbatim_processor';
+import {fileProcessor} from './file_processor';
+import {scriptProcessor} from './script_processor';
+import {spawnProcessor} from './spawn_processor';
+import {verbatimProcessor} from './verbatim_processor';
 
 import {
   AnySection,
@@ -13,7 +14,7 @@ import {interactiveProcessor} from './interactive_processor';
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// updateMarkdown2
+// updateMarkdown
 //
 ///////////////////////////////////////////////////////////////////////////////
 export interface Entry {
@@ -24,10 +25,11 @@ export interface Entry {
 export type Processor = (blocks: AnySection[], group: Entry[]) => void;
 
 const processors = new Map<string, Processor>([
-  ['file', fileProcessor2],
+  ['file', fileProcessor],
   ['interactive', interactiveProcessor],
-  ['spawn', spawnProcessor2],
-  ['verbatim', verbatimProcessor2],
+  ['script', scriptProcessor],
+  ['spawn', spawnProcessor],
+  ['verbatim', verbatimProcessor],
 ]);
 
 export async function updateMarkdown3(text: string): Promise<string> {

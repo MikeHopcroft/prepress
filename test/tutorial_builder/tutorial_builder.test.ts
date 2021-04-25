@@ -165,6 +165,58 @@ describe('Tutorial builder', () => {
     });
   });
 
+  describe('script', () => {
+    it.skip('bad script', async () => {
+      const markdown = stripLeadingSpaces(`\
+        Text before script block
+      
+        [//]: # (script script_does_not_exist)
+        ~~~
+        one
+        two
+        ~~~
+      
+        Text after script block
+      `);
+
+      await assert.isRejected(
+        updateMarkdown3(markdown),
+        'script returned non-zero status 1'
+      );
+    });
+
+    it('good script', async () => {
+      const markdown = stripLeadingSpaces(`\
+        Text before script block
+      
+        [//]: # (script npm --version)
+        ~~~
+        one
+        two
+        ~~~
+      
+        Text after script block
+      `);
+
+      const expected = stripLeadingSpaces(`\
+        Text before script block
+      
+        [//]: # (script npm --version)
+        ~~~
+        $ npm --version
+        X.Y.Z
+
+        ~~~
+      
+        Text after script block
+      `);
+
+      const result = await updateMarkdown3(markdown);
+      const observed = result.replace(/(\d+\.\d+\.\d+)/, 'X.Y.Z');
+      assert.equal(observed, expected);
+    });
+  });
+
   describe('spawn', () => {
     it('bad executable', async () => {
       const markdown = stripLeadingSpaces(`\
@@ -183,11 +235,9 @@ describe('Tutorial builder', () => {
         updateMarkdown3(markdown),
         'spawnSync executable_does_not_exist ENOENT'
       );
-
-      // assert.throws(async () => await updateMarkdown(markdown));
     });
 
-    it('spawn', async () => {
+    it('good executable', async () => {
       const markdown = stripLeadingSpaces(`\
         Text before spawn block
       

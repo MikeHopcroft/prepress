@@ -3,9 +3,13 @@
 * Top
   * Argument parser allows quoting - for spaces in prompt
   * Hang detection timeout
-  * Specify shell for spawn and interactive
+  * x Specify shell for spawn and interactive
   * README.md
   * tutorial.md
+* Look at verbatim block in getLabyrinth.src.md
+  * Why is this verbatim?
+  * Is directive stripping the correct behavior
+* Strip out non-printable characters
 * Travis + badges
 * NYC + badges
 * Figure out how to specify spaces in prompt
