@@ -5,6 +5,7 @@
   * Better unit test coverage
   * GitHub build status and code coverage badge
   * Register commands
+  * Remove spawn_test.ts
   * Write documentation
   * Publish npm package
   * Argument parser allows quoting - for spaces in prompt

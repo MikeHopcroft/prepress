@@ -12,6 +12,9 @@
   "keywords": [
     "markdown"
   ],
+  "bin": {
+    "prepress": "build/src/apps/prepress.js"
+  },
   "repository": "https://github.com/MikeHopcroft/prepress",
   "scripts": {
     "test": "mocha 'build/test/**/*.js'",
