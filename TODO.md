@@ -1,9 +1,10 @@
 # TODO List
 
 * Top
+  * . README.md build status badge
+  * README.md code coverage badge
   * BUG when second cmd line parameter is a filename, rather than a directory
   * Better unit test coverage
-  * GitHub build status and code coverage badge
   * Register commands
   * Remove spawn_test.ts
   * Write documentation
