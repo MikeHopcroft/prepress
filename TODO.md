@@ -1,6 +1,12 @@
 # TODO List
 
 * Top
+  * BUG when second cmd line parameter is a filename, rather than a directory
+  * Better unit test coverage
+  * GitHub build status and code coverage badge
+  * Register commands
+  * Write documentation
+  * Publish npm package
   * Argument parser allows quoting - for spaces in prompt
   * Hang detection timeout
   * x Specify shell for spawn and interactive
