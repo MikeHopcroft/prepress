@@ -252,8 +252,6 @@ describe('Tutorial builder', () => {
     });
 
     it('good executable', async () => {
-      patchFs(vol);
-
       const markdown = stripLeadingSpaces(`\
         Text before spawn block
       

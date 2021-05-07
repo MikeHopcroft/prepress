@@ -1,6 +1,5 @@
 import * as commandLineUsage from 'command-line-usage';
 import {Section} from 'command-line-usage';
-import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import * as minimist from 'minimist';
 import * as path from 'path';
@@ -10,8 +9,6 @@ import {fail, handleError, succeed} from './handle-errors';
 import {updateMarkdown} from './tutorial_builder';
 
 export async function tutorialBuilderMain() {
-  dotenv.config();
-
   // TODO: get executable and params (e.g. -d, -x) from markdown
   const args = minimist(process.argv.slice(2));
 

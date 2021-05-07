@@ -43,7 +43,6 @@
   },
   "dependencies": {
     "command-line-usage": "^6.1.1",
-    "dotenv": "^8.2.0",
     "minimist": "^1.2.5",
     "recursive-readdir": "^2.2.2"
   }
