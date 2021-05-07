@@ -1,3 +1,5 @@
+const {patchFs} = require('fs-monkey');
+import {vol} from 'memfs';
 import * as chai from 'chai';
 import {assert} from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -6,6 +8,12 @@ import 'mocha';
 chai.use(chaiAsPromised);
 
 import {updateMarkdown} from '../../src/tutorial_builder/tutorial_builder';
+
+const files = {
+  'test.txt':
+    'one\ntwo\nthree\nfour\nfive\nsix\nseven\neight\nnine\nten\neleven',
+};
+vol.fromJSON(files, 'test/tutorial_builder');
 
 describe('Tutorial builder', () => {
   it('bad block', async () => {
@@ -48,6 +56,8 @@ describe('Tutorial builder', () => {
     });
 
     it('file', async () => {
+      patchFs(vol);
+
       const markdown = stripLeadingSpaces(`\
         Text before file block
       
@@ -86,6 +96,8 @@ describe('Tutorial builder', () => {
     });
 
     it('file numbered', async () => {
+      patchFs(vol);
+
       const markdown = stripLeadingSpaces(`\
         Text before file block
       
@@ -127,6 +139,8 @@ describe('Tutorial builder', () => {
     });
 
     it('file yaml', async () => {
+      patchFs(vol);
+
       const markdown = stripLeadingSpaces(`\
         Text before file block
       
@@ -238,6 +252,8 @@ describe('Tutorial builder', () => {
     });
 
     it('good executable', async () => {
+      patchFs(vol);
+
       const markdown = stripLeadingSpaces(`\
         Text before spawn block
       

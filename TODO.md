@@ -1,8 +1,12 @@
 # TODO List
 
 * Top
-  * . README.md build status badge
+  * x README.md build status badge
   * README.md code coverage badge
+  * x Mock filesystem for unit tests
+    * x mockfs
+    * x memfs
+    * x monkey patching
   * BUG when second cmd line parameter is a filename, rather than a directory
   * Better unit test coverage
   * Register commands
