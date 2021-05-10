@@ -1,18 +1,32 @@
 # TODO List
 
 * Top
-  * x README.md build status badge
+  * Remove ncp, @types/ncp dependencies
+  * Write documentation
+  * Publish npm package
   * README.md code coverage badge
-  * x Mock filesystem for unit tests
+  * Rename tutorialBuilder
+  * Markdown parser tests?
+  * Convert all paths and path operations to posix.
+    * https://stackoverflow.com/questions/53799385/how-can-i-convert-a-windows-path-to-posix-path-using-node-path
+    * somePathString.split(path.sep).join(path.posix.sep);
+  * x README.md build status badge
+  * Mock filesystem for unit tests
     * x mockfs
     * x memfs
     * x monkey patching
-  * BUG when second cmd line parameter is a filename, rather than a directory
+    * Clean up memfs usage pattern
+  * Unit tests
+    * Reduce console spew
+    * x Missing first arg
+    * Missing second arg
+    * x Input not found
+    * x Input not *.src.md
+    * x Input: file, output: file
+  * x BUG when second cmd line parameter is a filename, rather than a directory
   * Better unit test coverage
   * Register commands
   * Remove spawn_test.ts
-  * Write documentation
-  * Publish npm package
   * Argument parser allows quoting - for spaces in prompt
   * Hang detection timeout
   * x Specify shell for spawn and interactive
