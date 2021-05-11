@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import {tutorialBuilderMain} from '../tutorial_builder';
 
 async function go() {
