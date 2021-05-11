@@ -1,10 +1,9 @@
-import * as commandLineUsage from 'command-line-usage';
-import {Section} from 'command-line-usage';
-import * as fs from 'fs';
-import * as minimist from 'minimist';
-import * as mkdirp from 'mkdirp';
-import * as path from 'path';
-import * as recursiveReaddir from 'recursive-readdir';
+import commandLineUsage, {Section} from 'command-line-usage';
+import fs from 'fs';
+import minimist from 'minimist';
+import mkdirp from 'mkdirp';
+import path from 'path';
+import recursiveReaddir from 'recursive-readdir';
 
 import {decodeError, printErrorMessage} from './handle-errors';
 import {updateMarkdown} from './tutorial_builder';

@@ -1,7 +1,7 @@
 # TODO List
 
 * Top
-  * Import *
+  * x Import *
   * Publish npm package
   * Write documentation
   * README.md code coverage badge

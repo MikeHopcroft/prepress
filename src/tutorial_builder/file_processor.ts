@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import fs from 'fs';
 
 import {AnySection} from './markdown_parser';
 import {Entry, makeBlock} from './tutorial_builder';

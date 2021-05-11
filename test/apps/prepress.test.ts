@@ -2,7 +2,7 @@ import {assert} from 'chai';
 const {patchFs} = require('fs-monkey');
 import {Volume} from 'memfs';
 import 'mocha';
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 
 import {tutorialBuilderMain} from '../../src/tutorial_builder';
 

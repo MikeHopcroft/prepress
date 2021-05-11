@@ -1,8 +1,7 @@
+import chai, {assert} from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 const {patchFs} = require('fs-monkey');
 import {vol} from 'memfs';
-import * as chai from 'chai';
-import {assert} from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
 import 'mocha';
 
 chai.use(chaiAsPromised);
