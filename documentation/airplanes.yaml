@@ -1,0 +1,7 @@
+airplanes:
+  - type: Cessna
+    model: 172
+    engines: 1
+  - type: Beechcraft
+    model: King Air 260
+    engines: 2

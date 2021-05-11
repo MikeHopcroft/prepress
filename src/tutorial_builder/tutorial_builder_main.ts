@@ -55,7 +55,7 @@ function showUsage() {
     {
       header: 'Usage',
       content: [
-        `node ${program} <input file or dir> [output file or dir] [...options]`,
+        `node ${program} <input file or dir> [<output file or dir>] [...<options>]`,
       ],
     },
     {

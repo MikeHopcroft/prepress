@@ -27,7 +27,6 @@ In order to use `prepress` you must have
 ~~~
 $ node --version
 v16.0.0
-
 ~~~
 
 Once you have Node, you can install the [prepress](https://www.npmjs.com/package/prepress) package directly from [npm](https://www.npmjs.com):
@@ -40,24 +39,6 @@ This will make the `prepress` command available in your shell. You can verify yo
 
 [//]: # (spawn node build/src/apps/prepress.js --help)
 ~~~
-$ node build/src/apps/prepress.js --help
-
-Tutorial Builder
-
-  This utility uses a markdown file as a template for generating documentation  
-  by rerunning commands inside of markdown code blocks.                         
-
-Usage
-
-  node prepress.js <input file or dir> [output file or dir] [...options] 
-
-Options
-
-  -d, --dryrun       Dry run: process files and print to console 
-  -r, --recursive    Process recursive directory tree            
-  -h, --help         Print help message                          
-
-
 ~~~
 
 ## Runninng Prepress
@@ -107,14 +88,6 @@ You can use the `file` command to incorporate the contents of a file within a co
 
 [//]: # (file documentation/airplanes.yaml)
 ~~~yaml
-airplanes:
-  - type: Cessna
-    model: 172
-    engines: 1
-  - type: Beechcraft
-    model: King Air 260
-    engines: 2
-
 ~~~
 
 ### Executables
@@ -133,9 +106,6 @@ Here's an example that uses `spawn` to run `node`:
 
 [//]: # (spawn node --version)
 ~~~
-$ node --version
-v16.0.0
-
 ~~~
 
 ### Scripts
@@ -152,9 +122,6 @@ The `script` command runs scripts and batch files in the shell. Here's an exampl
 
 [//]: # (script npm --version)
 ~~~
-$ npm --version
-7.10.0
-
 ~~~
 
 ### Interactive Sessions
@@ -184,11 +151,8 @@ Here's the output of the interactive session:
 [//]: # (interactive one > node -i)
 ~~~
 > a = 1+2
-3
 > b = 10
-10
 > a + b
-13
 ~~~
 
 A few notes about interactive sessions:
@@ -212,11 +176,8 @@ We can see that this is a different session because `a` is undefined:
 [//]: # (interactive two > node -i)
 ~~~
 > a
-3
 > a = 1234
-1234
 > b = 5678
-5678
 ~~~
 
 We can then go back and continue our original session by reusing its session identifier:
@@ -236,9 +197,6 @@ We can see here that `a` and `b` have the values from session `one`:
 [//]: # (interactive one > node -i)
 ~~~
 > a
-1234
 > b
-5678
 > c = 7890
-7890
 ~~~

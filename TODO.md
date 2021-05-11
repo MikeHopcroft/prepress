@@ -2,14 +2,17 @@
 
 * Top
   * x Import *
+  * Multiple sessions
   * Publish npm package
   * Write documentation
   * README.md code coverage badge
+  * Rename tutorialBuilder
   * Convert all paths and path operations to posix.
     * https://stackoverflow.com/questions/53799385/how-can-i-convert-a-windows-path-to-posix-path-using-node-path
     * somePathString.split(path.sep).join(path.posix.sep);
+    * Is this necessary?
+    * Is it a good idea?
   * DESIGN: what should the prepress return code be when a script fails?
-  * Rename tutorialBuilder
   * Markdown parser tests?
   * x Remove ncp, @types/ncp dependencies
   * x Better testing of rename() function. Does it really do the nested folders correctly?

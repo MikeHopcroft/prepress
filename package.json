@@ -17,6 +17,7 @@
   },
   "repository": "https://github.com/MikeHopcroft/prepress",
   "scripts": {
+    "docs": "node build/src/apps/prepress.js documentation/README.src.md README.md",
     "test": "mocha 'build/test/**/*.js'",
     "lint": "gts lint",
     "clean": "gts clean",
