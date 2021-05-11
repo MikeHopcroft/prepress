@@ -1,15 +1,19 @@
 # TODO List
 
 * Top
-  * Remove ncp, @types/ncp dependencies
-  * Write documentation
+  * Import *
   * Publish npm package
+  * Write documentation
   * README.md code coverage badge
-  * Rename tutorialBuilder
-  * Markdown parser tests?
   * Convert all paths and path operations to posix.
     * https://stackoverflow.com/questions/53799385/how-can-i-convert-a-windows-path-to-posix-path-using-node-path
     * somePathString.split(path.sep).join(path.posix.sep);
+  * DESIGN: what should the prepress return code be when a script fails?
+  * Rename tutorialBuilder
+  * Markdown parser tests?
+  * x Remove ncp, @types/ncp dependencies
+  * x Better testing of rename() function. Does it really do the nested folders correctly?
+  * x Is existsSync() workaround still necessary?
   * x README.md build status badge
   * Mock filesystem for unit tests
     * x mockfs
@@ -19,13 +23,13 @@
   * Unit tests
     * Reduce console spew
     * x Missing first arg
-    * Missing second arg
+    * x Missing second arg
     * x Input not found
     * x Input not *.src.md
     * x Input: file, output: file
   * x BUG when second cmd line parameter is a filename, rather than a directory
-  * Better unit test coverage
-  * Register commands
+  * x Better unit test coverage
+  * x Register commands
   * Remove spawn_test.ts
   * Argument parser allows quoting - for spaces in prompt
   * Hang detection timeout

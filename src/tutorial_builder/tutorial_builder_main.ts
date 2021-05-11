@@ -3,7 +3,6 @@ import {Section} from 'command-line-usage';
 import * as fs from 'fs';
 import * as minimist from 'minimist';
 import * as mkdirp from 'mkdirp';
-// import * as ncp from 'ncp';
 import * as path from 'path';
 import * as recursiveReaddir from 'recursive-readdir';
 
@@ -109,32 +108,17 @@ async function processFileOrFolder(
         const message = `Cannot process directory ${inPath} to single output file ${outPath}.`;
         throw new TypeError(message);
       } else {
-        // outType === PathType.NONE || outType === PathType.DIR
-        // Process all files from input directory to output directory.
-        // await convertFolder(inPath, outPath);
-
-        // if (outType === PathType.NONE) {
-        //   mkdirp.sync(outPath);
-        // }
-
-        let files: string[];
-        if (recursive) {
-          files = await recursiveReaddir(inPath);
-        } else {
-          files = fs.readdirSync(inPath).map(f => path.join(inPath, f));
-        }
+        const files = recursive
+          ? await recursiveReaddir(inPath)
+          : fs.readdirSync(inPath).map(f => path.join(inPath, f));
 
         for (const inFile of files) {
-          // const inFile = path.join(inPath, f);
           const match = inFile.match(/^(.*)\.src\.md$/);
           if (match) {
-            // if (inFile.match(/\.src\.md$/)) {
-            // console.log(`${inFile} => ${path.relative(inPath, inFile)}`);
             const temp = match[1] + '.md';
             const outFile = path.join(outPath, path.relative(inPath, temp));
             console.log(`${inFile} => ${outFile}`);
             await convertFile(inFile, outFile, dryrun);
-            // await convertFile(inFile, rename(inFile, outPath), dryrun);
           }
         }
       }
@@ -172,69 +156,6 @@ function rename(fileName: string, outDir: string): string {
   return outPath;
 }
 
-// async function convertFolder(
-//   srcFolder: string,
-//   destFolder: string
-// ): Promise<boolean> {
-//   return new Promise<boolean>((resolve, reject) => {
-//     ncp(
-//       srcFolder,
-//       destFolder,
-//       {
-//         // https://github.com/AvianFlu/ncp/issues/130
-//         filter: path => {
-//           if (fs.lstatSync(path).isDirectory()) {
-//             return true;
-//           } else {
-//             return path.endsWith('.src.md');
-//           }
-//         },
-//         transform: async (
-//           read: NodeJS.ReadableStream,
-//           write: NodeJS.WritableStream,
-//           file: ncp.File
-//         ) => {
-//           console.log('copying ' + file.name);
-//           const success = await convertStream(read, write);
-//           // read.pipe(write).on('finish', () => {
-//           //   console.log(file.name + ' finished');
-//           // });
-//         },
-//       },
-//       err => {
-//         if (err) {
-//           console.log(`Errors: ${err}`);
-//           reject(err);
-//         } else {
-//           resolve(true);
-//         }
-//       }
-//     );
-//   });
-// }
-
-// async function convertStream(
-//   read: NodeJS.ReadableStream,
-//   write: NodeJS.WritableStream
-// ): Promise<boolean> {
-//   const chunks: Array<Buffer> = [];
-
-//   for await (const chunk of read) {
-//     chunks.push(chunk as Buffer);
-//   }
-
-//   const buffer = Buffer.concat(chunks);
-//   const str = buffer.toString('utf-8');
-
-//   // TODO: convert file here
-//   const success = true;
-
-//   write.write(str);
-//   write.end();
-
-//   return success;
-// }
-
 async function convertFile(inFile: string, outFile: string, dryrun: boolean) {
   const inPath = path.resolve(inFile);
   const outPath = path.resolve(outFile);
@@ -249,8 +170,9 @@ async function convertFile(inFile: string, outFile: string, dryrun: boolean) {
     throw new TypeError(message);
   }
 
-  // This if-statement is redundant because inPath must end in .src.md and
-  // outPath cannot end in .src.md.
+  // The following if-statement is redundant because inPath must end in .src.md
+  // and outPath cannot end in .src.md. Leaving in code base a defense in depth
+  // against changes in earlier logic.
   if (inPath === outPath) {
     const message = `Input file ${inPath} cannot be the same as output file`;
     throw new TypeError(message);
@@ -270,7 +192,6 @@ async function convertFile(inFile: string, outFile: string, dryrun: boolean) {
     console.log(updatedText);
   } else {
     ensureFolderAndWrite(outFile, updatedText, 'utf8');
-    // fs.writeFileSync(outFile, updatedText, 'utf8');
   }
 }
 
@@ -283,30 +204,11 @@ enum PathType {
   DIR,
   FILE,
   NONE,
-  // UNDEFINED,
 }
 
 function getPathType(path: string) {
-  if (existsSync(path)) {
+  if (fs.existsSync(path)) {
     return fs.lstatSync(path).isDirectory() ? PathType.DIR : PathType.FILE;
   }
   return PathType.NONE;
-}
-
-// function getPathType(path: string | undefined) {
-//   if (path === undefined) {
-//     return PathType.UNDEFINED;
-//   } else if (existsSync(path)) {
-//     return fs.lstatSync(path).isDirectory() ? PathType.DIR : PathType.FILE;
-//   }
-//   return PathType.NONE;
-// }
-
-// Workaround to apparent bug in memfs 3.2.2, which is used by the unit tests.
-function existsSync(filename: string): boolean {
-  try {
-    return fs.existsSync(filename);
-  } catch (e) {
-    return false;
-  }
 }

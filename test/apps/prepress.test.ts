@@ -1,16 +1,10 @@
 import {assert} from 'chai';
-// import * as chai from 'chai';
-// import * as chaiAsPromised from 'chai-as-promised';
-import * as fs from 'fs';
 const {patchFs} = require('fs-monkey');
 import {Volume} from 'memfs';
 import 'mocha';
-import * as ncp from 'ncp';
 import * as sinon from 'sinon';
 
 import {tutorialBuilderMain} from '../../src/tutorial_builder';
-
-// chai.use(chaiAsPromised);
 
 describe('Apps', () => {
   describe('prepress', () => {
@@ -230,6 +224,66 @@ describe('Apps', () => {
         assert.deepEqual(observedVolume, expectedVolume);
       });
 
+      it('from file to explicit directory (new file)', async () => {
+        const sourceText = 'any source text';
+        const generatedText = sourceText;
+        const vol = Volume.fromJSON({
+          '/src/dir1/dir2/input.src.md': sourceText,
+          '/output': null,
+        });
+
+        patchFs(vol);
+
+        const argv = [
+          'node',
+          'build/apps/prepress.js',
+          '/src/dir1/dir2/input.src.md',
+          '/output',
+        ];
+
+        const succeeded = await tutorialBuilderMain(argv);
+
+        const expectedVolume = {
+          '/src/dir1/dir2/input.src.md': sourceText,
+          '/output/input.md': generatedText,
+        };
+
+        const observedVolume = vol.toJSON();
+
+        assert.isTrue(succeeded);
+        assert.deepEqual(observedVolume, expectedVolume);
+      });
+
+      it('from file to explicit directory (existing file)', async () => {
+        const sourceText = 'any source text';
+        const generatedText = sourceText;
+        const vol = Volume.fromJSON({
+          '/src/dir1/dir2/input.src.md': sourceText,
+          '/output/input.md': 'some text',
+        });
+
+        patchFs(vol);
+
+        const argv = [
+          'node',
+          'build/apps/prepress.js',
+          '/src/dir1/dir2/input.src.md',
+          '/output',
+        ];
+
+        const succeeded = await tutorialBuilderMain(argv);
+
+        const expectedVolume = {
+          '/src/dir1/dir2/input.src.md': sourceText,
+          '/output/input.md': generatedText,
+        };
+
+        const observedVolume = vol.toJSON();
+
+        assert.isTrue(succeeded);
+        assert.deepEqual(observedVolume, expectedVolume);
+      });
+
       it('from directory to explicit existing directory', async () => {
         const sourceText1 = 'any source text';
         const sourceText2 = 'text two';
@@ -291,73 +345,6 @@ describe('Apps', () => {
 
         assert.isTrue(succeeded);
         assert.deepEqual(observedVolume, expectedVolume);
-      });
-
-      it.skip('test npc', async () => {
-        const sourceText1 = 'any source text';
-        const sourceText2 = 'text two';
-        const sourceText3 = 'a third text';
-        const vol = Volume.fromJSON({
-          '/src123/one.md': sourceText1,
-          '/src123/one.src.md': sourceText1,
-          '/src123/two.src.md': sourceText2,
-          '/src123/nested/three.src.md': sourceText3,
-        });
-
-        patchFs(vol);
-
-        function copy(src: string, dest: string): Promise<boolean> {
-          return new Promise<boolean>((resolve, reject) => {
-            ncp(
-              src,
-              dest,
-              {
-                // https://github.com/AvianFlu/ncp/issues/130
-                filter: path => {
-                  if (fs.lstatSync(path).isDirectory()) {
-                    return true;
-                  } else {
-                    return path.endsWith('.src.md');
-                  }
-                },
-                transform: (
-                  read: NodeJS.ReadableStream,
-                  write: NodeJS.WritableStream,
-                  file: ncp.File
-                ) => {
-                  console.log('copying ' + file.name);
-                  read.pipe(write).on('finish', () => {
-                    console.log(file.name + ' finished');
-                  });
-                },
-              },
-              err => {
-                if (err) {
-                  console.log(`Errors: ${err}`);
-                  reject(err);
-                } else {
-                  resolve(true);
-                }
-              }
-            );
-          });
-        }
-        await assert.isFulfilled(copy('/src123', '/dest123'));
-
-        // const expectedVolume = {
-        //   '/dest/one.md': sourceText1,
-        //   '/dest/two.md': sourceText2,
-        //   '/dest/nested/three.md': sourceText3,
-        //   '/src/one.src.md': sourceText1,
-        //   '/src/two.src.md': sourceText2,
-        //   '/src/nested/three.src.md': sourceText3,
-        // };
-
-        const observedVolume = vol.toJSON();
-        console.log('==================');
-        console.log(observedVolume);
-
-        assert.fail();
       });
 
       it('from directory to explicit new directory recursive', async () => {

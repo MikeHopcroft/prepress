@@ -180,6 +180,12 @@ describe('Tutorial builder', () => {
   });
 
   describe('script', () => {
+    // TODO: DESIGN: what should the prepress return code be when a script fails?
+    // It is possible that one is demonstrating a script that fails.
+    // Should distinguish between two scenarios:
+    //   1. Prepress fails to invoke script - this should report a failure.
+    //   2. Script was invoked and then failed on its own - this should not
+    //      report a failure.
     it.skip('bad script', async () => {
       const markdown = stripLeadingSpaces(`\
         Text before script block
