@@ -41,7 +41,7 @@ This will make the `prepress` command available in your shell. You can verify yo
 ~~~
 ~~~
 
-## Runninng Prepress
+## Running Prepress
 
 `Prepress` transforms _markdown source files_ into markdown files, by supplying the contents for [specially marked code blocks](#authoring-markdown-for-prepress). The source file names must end with the extension, `".src.md"`. The generated markdown files will have the regular `".md"` extension.
 
@@ -54,7 +54,7 @@ The first parameter specifics the location of the markdown source. This can be t
 
 The second parameter, which is optional, specifies the output location. It can be the path to a single file or a directory. If the output location is omitted, `prepress` will use the input directory.
 
-You can use the `-d` parameter to do a "dry run" that processes the input and then displays the resulting markdown on the console, instead of writing to the output file. The output will include a line that describes where the output would be written when not doing a "dry run".
+You can use the `-d` option to do a "dry run" that processes the input and then displays the resulting markdown on the console, instead of writing to the output file. The output will include a line that describes where the output would be written when not doing a "dry run".
 
 ## Authoring Markdown for Prepress
 
