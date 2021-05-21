@@ -116,6 +116,17 @@ describe('Apps', () => {
     });
 
     describe('valid', () => {
+      let consoleSpy: sinon.SinonSpy;
+
+      beforeEach(() => {
+        consoleSpy = sinon.fake();
+        sinon.replace(console, 'log', consoleSpy);
+      });
+
+      afterEach(() => {
+        sinon.restore();
+      });
+
       it('from file to explicit existing file', async () => {
         const sourceText = 'any source text';
         const generatedText = sourceText;

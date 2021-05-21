@@ -317,7 +317,7 @@ describe('Tutorial builder', () => {
   });
 
   describe('interactive block', () => {
-    it('no prologue', async () => {
+    it('suppress prologue', async () => {
       const markdown = stripLeadingSpaces(`\
         Text before interactive block
 
@@ -345,6 +345,125 @@ describe('Tutorial builder', () => {
         ~~~
       
         Text after interactive block
+      `);
+
+      // TODO:
+      //   Multiple sessions
+      //   Show prologue
+      //   Shell mode
+
+      const observed = await updateMarkdown(markdown);
+      assert.equal(observed, expected);
+    });
+
+    it('display prologue', async () => {
+      const markdown = stripLeadingSpaces(`\
+        Text before interactive block
+
+        [//]: # (interactive one > node.exe -i)
+        ~~~
+        Placeholder for prologue
+        > a = 1+2
+        > b = 3
+        > a + b
+        ~~~
+      
+        Text after interactive block
+      `);
+
+      const expected = stripLeadingSpaces(`\
+        Text before interactive block
+      
+        [//]: # (interactive one > node.exe -i)
+        ~~~
+        Welcome to Node.js v16.0.0.
+        Type ".help" for more information.
+        > a = 1+2
+        3
+        > b = 3
+        3
+        > a + b
+        6
+        ~~~
+      
+        Text after interactive block
+      `);
+
+      // TODO:
+      //   Multiple sessions
+      //   Show prologue
+      //   Shell mode
+
+      const observed = await updateMarkdown(markdown);
+      assert.equal(observed, expected);
+    });
+
+    it('multiple sessions', async () => {
+      const markdown = stripLeadingSpaces(`\
+        Interactive block for session one
+
+        [//]: # (interactive one > node.exe -i)
+        ~~~
+        > a = 'hello'
+        ~~~
+
+        Interactive block for session two
+
+        [//]: # (interactive two > node.exe -i)
+        ~~~
+        > a
+        > a = 'goodbye'
+        ~~~
+
+        Return to session one
+
+        [//]: # (interactive one > node.exe -i)
+        ~~~
+        > a
+        ~~~
+
+        Return to session two
+
+        [//]: # (interactive two > node.exe -i)
+        ~~~
+        > a
+        ~~~
+      `);
+
+      const expected = stripLeadingSpaces(`\
+        Interactive block for session one
+
+        [//]: # (interactive one > node.exe -i)
+        ~~~
+        > a = 'hello'
+        'hello'
+        ~~~
+
+        Interactive block for session two
+
+        [//]: # (interactive two > node.exe -i)
+        ~~~
+        > a
+        Uncaught ReferenceError: a is not defined
+        > a = 'goodbye'
+        'goodbye'
+        ~~~
+
+        Return to session one
+
+        [//]: # (interactive one > node.exe -i)
+        ~~~
+        > a
+        'hello'
+        ~~~
+
+        Return to session two
+
+        [//]: # (interactive two > node.exe -i)
+        ~~~
+        > a
+        'goodbye'
+        ~~~
       `);
 
       // TODO:

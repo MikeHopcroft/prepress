@@ -1,8 +1,11 @@
 # TODO List
 
 * Top
+  * x Instructions to build from source
+  * x Multiple sessions
+  * xRegister commands
+    * x Script error running globally installed version
   * x Import *
-  * Multiple sessions
   * Publish npm package
   * Write documentation
   * README.md code coverage badge
@@ -32,7 +35,6 @@
     * x Input: file, output: file
   * x BUG when second cmd line parameter is a filename, rather than a directory
   * x Better unit test coverage
-  * x Register commands
   * Remove spawn_test.ts
   * Argument parser allows quoting - for spaces in prompt
   * Hang detection timeout

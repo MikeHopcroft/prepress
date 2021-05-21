@@ -22,7 +22,7 @@ function groupBySession(group: Entry[]) {
   for (const entry of group) {
     const block = entry.block;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [[prompt, sessionId, executable], args] = parseArgs(
+    const [[sessionId, prompt, executable], args] = parseArgs(
       block.parameters,
       3,
       true,
