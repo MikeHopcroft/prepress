@@ -5,6 +5,7 @@ on:
     branches:
       - $default-branch
       - main
+      - mhop/**
   pull_request:
     branches: 
       - $default-branch
