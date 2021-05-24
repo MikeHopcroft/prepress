@@ -7,12 +7,6 @@ import sinon from 'sinon';
 import {tutorialBuilderMain} from '../../src/tutorial_builder';
 
 describe('Apps', () => {
-  // const vol = Volume.fromJSON({
-  //   '/input.md': 'some test',
-  //   '/input.src.md': 'some test',
-  //   '/output.md': 'some more text',
-  //   '/src/input.src.md': 'some text',
-  // });
   const vol = Volume.fromJSON({});
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let unpatch: any;
@@ -59,8 +53,6 @@ describe('Apps', () => {
       });
 
       it('input file not found', async () => {
-        // const vol = Volume.fromJSON({});
-        // patchFs(vol);
         initializeFS({});
 
         const argv = [
@@ -80,10 +72,6 @@ describe('Apps', () => {
       });
 
       it('input file does not end with .src.md', async () => {
-        // const vol = Volume.fromJSON({
-        //   '/input.md': 'some test',
-        // });
-        // patchFs(vol);
         initializeFS({
           '/input.md': 'some test',
         });
@@ -103,10 +91,6 @@ describe('Apps', () => {
       });
 
       it('output file ends with .src.md', async () => {
-        // const vol = Volume.fromJSON({
-        //   '/input.src.md': 'some test',
-        // });
-        // patchFs(vol);
         initializeFS({
           '/input.src.md': 'some test',
         });
@@ -125,11 +109,6 @@ describe('Apps', () => {
       });
 
       it('input directory to existing output file', async () => {
-        // const vol = Volume.fromJSON({
-        //   '/src/input.src.md': 'some text',
-        //   '/output.md': 'some more text',
-        // });
-        // patchFs(vol);
         initializeFS({
           '/src/input.src.md': 'some text',
           '/output.md': 'some more text',
@@ -162,11 +141,6 @@ describe('Apps', () => {
       it('from file to explicit existing file', async () => {
         const sourceText = 'any source text';
         const generatedText = sourceText;
-        // const vol = Volume.fromJSON({
-        //   '/input.src.md': sourceText,
-        //   '/output.md': 'other text',
-        // });
-        // patchFs(vol);
         initializeFS({
           '/input.src.md': sourceText,
           '/output.md': 'other text',
@@ -195,10 +169,6 @@ describe('Apps', () => {
       it('from file to explicit new file', async () => {
         const sourceText = 'any source text';
         const generatedText = sourceText;
-        // const vol = Volume.fromJSON({
-        //   '/input.src.md': sourceText,
-        // });
-        // patchFs(vol);
         initializeFS({
           '/input.src.md': sourceText,
         });
@@ -226,11 +196,6 @@ describe('Apps', () => {
       it('from file to implicit existing file', async () => {
         const sourceText = 'any source text';
         const generatedText = sourceText;
-        // const vol = Volume.fromJSON({
-        //   '/input.src.md': sourceText,
-        //   '/input.md': 'other text',
-        // });
-        // patchFs(vol);
         initializeFS({
           '/input.src.md': sourceText,
           '/input.md': 'other text',
@@ -254,10 +219,6 @@ describe('Apps', () => {
       it('from file to implicit new file', async () => {
         const sourceText = 'any source text';
         const generatedText = sourceText;
-        // const vol = Volume.fromJSON({
-        //   '/input.src.md': sourceText,
-        // });
-        // patchFs(vol);
         initializeFS({
           '/input.src.md': sourceText,
         });
@@ -280,12 +241,6 @@ describe('Apps', () => {
       it('from file to explicit directory (new file)', async () => {
         const sourceText = 'any source text';
         const generatedText = sourceText;
-        // const vol = Volume.fromJSON({
-        //   '/src/dir1/dir2/input.src.md': sourceText,
-        //   '/output': null,
-        // });
-
-        // patchFs(vol);
         initializeFS({
           '/src/dir1/dir2/input.src.md': sourceText,
           '/output': null,
@@ -314,12 +269,6 @@ describe('Apps', () => {
       it('from file to explicit directory (existing file)', async () => {
         const sourceText = 'any source text';
         const generatedText = sourceText;
-        // const vol = Volume.fromJSON({
-        //   '/src/dir1/dir2/input.src.md': sourceText,
-        //   '/output/input.md': 'some text',
-        // });
-
-        // patchFs(vol);
         initializeFS({
           '/src/dir1/dir2/input.src.md': sourceText,
           '/output/input.md': 'some text',
@@ -349,14 +298,6 @@ describe('Apps', () => {
         const sourceText1 = 'any source text';
         const sourceText2 = 'text two';
         const sourceText3 = 'a third text';
-        // const vol = Volume.fromJSON({
-        //   '/src/one.src.md': sourceText1,
-        //   '/src/two.src.md': sourceText2,
-        //   '/src/three.src.md': sourceText3,
-        //   '/dest/one.md': 'some text',
-        // });
-
-        // patchFs(vol);
         initializeFS({
           '/src/one.src.md': sourceText1,
           '/src/two.src.md': sourceText2,
@@ -387,13 +328,6 @@ describe('Apps', () => {
         const sourceText1 = 'any source text';
         const sourceText2 = 'text two';
         const sourceText3 = 'a third text';
-        // const vol = Volume.fromJSON({
-        //   '/src/one.src.md': sourceText1,
-        //   '/src/two.src.md': sourceText2,
-        //   '/src/three.src.md': sourceText3,
-        // });
-
-        // patchFs(vol);
         initializeFS({
           '/src/one.src.md': sourceText1,
           '/src/two.src.md': sourceText2,
@@ -423,12 +357,6 @@ describe('Apps', () => {
         const sourceText1 = 'any source text';
         const sourceText2 = 'text two';
         const sourceText3 = 'a third text';
-        // const vol = Volume.fromJSON({
-        //   '/src/one.src.md': sourceText1,
-        //   '/src/two.src.md': sourceText2,
-        //   '/src/nested/three.src.md': sourceText3,
-        // });
-        // patchFs(vol);
         initializeFS({
           '/src/one.src.md': sourceText1,
           '/src/two.src.md': sourceText2,
@@ -457,12 +385,6 @@ describe('Apps', () => {
         const sourceText1 = 'any source text';
         const sourceText2 = 'text two';
         const sourceText3 = 'a third text';
-        // const vol = Volume.fromJSON({
-        //   '/src/one.src.md': sourceText1,
-        //   '/src/two.src.md': sourceText2,
-        //   '/src/three.src.md': sourceText3,
-        // });
-        // patchFs(vol);
         initializeFS({
           '/src/one.src.md': sourceText1,
           '/src/two.src.md': sourceText2,
@@ -490,12 +412,6 @@ describe('Apps', () => {
         const sourceText1 = 'any source text';
         const sourceText2 = 'text two';
         const sourceText3 = 'a third text';
-        // const vol = Volume.fromJSON({
-        //   '/src/one.src.md': sourceText1,
-        //   '/src/two.src.md': sourceText2,
-        //   '/src/nested/three.src.md': sourceText3,
-        // });
-        // patchFs(vol);
         initializeFS({
           '/src/one.src.md': sourceText1,
           '/src/two.src.md': sourceText2,

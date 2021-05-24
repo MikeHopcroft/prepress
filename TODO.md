@@ -1,16 +1,19 @@
 # TODO List
 
 * Top
-  * Cleanup after code coverage
-    * Remove unionfs dependency
-    * Remove data/i.src.md
-    * Remove src/apps/spawn_test.ts
-    * README.md code coverage badge
   * Publish npm package
+  * Merge mhop/coverage branch
+  * Post sources to coveralls
+  * Cleanup after code coverage
+    * x Remove unionfs dependency
+    * Remove data/i.src.md
+      * Or clean up data directory and use for samples
+    * x Remove src/apps/spawn_test.ts
+    * README.md code coverage badge
   * Rename tutorialBuilder
   * x Instructions to build from source
   * x Multiple sessions
-  * xRegister commands
+  * x Register commands
     * x Script error running globally installed version
   * x Import *
   * x Write documentation

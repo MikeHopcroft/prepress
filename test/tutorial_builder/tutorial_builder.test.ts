@@ -1,11 +1,7 @@
 import chai, {assert} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-// import fs from 'fs';
-// const {patchFs} = require('fs-monkey');
-// import {DirectoryJSON, Volume} from 'memfs';
 import {Volume} from 'memfs';
 import 'mocha';
-// import {ufs} from 'unionfs';
 
 chai.use(chaiAsPromised);
 
@@ -16,40 +12,15 @@ const files = {
   'test.txt':
     'one\ntwo\nthree\nfour\nfive\nsix\nseven\neight\nnine\nten\neleven',
 };
-// https://github.com/streamich/unionfs/issues/453
-// const vol = Volume.fromJSON(files, 'test/tutorial_builder');
-// ufs.use(fs).use(vol as any);
-// ufs.use(vol as any).use(fs);
 
 describe('Tutorial builder', () => {
-  // let unpatch: any;
-
-  // beforeEach(() => {
-  //   unpatch = patchFs(ufs);
-  // });
-
-  // afterEach(() => {
-  //   unpatch();
-  // });
   const volume = Volume.fromJSON({});
   const fs: IFS = (volume as unknown) as IFS;
-  // testFS(vol as IFS);
-  // let unpatch: any;
 
   beforeEach(() => {
     volume.reset();
     volume.fromJSON(files, 'test/tutorial_builder');
-    // unpatch = patchFs(volume);
   });
-
-  afterEach(() => {
-    // unpatch();
-  });
-
-  // function initializeFS(json: DirectoryJSON) {
-  //   vol.reset();
-  //   vol.fromJSON(json, 'test/tutorial_builder')
-  // }
 
   it('bad block', async () => {
     const markdown = stripLeadingSpaces(`\
@@ -71,16 +42,6 @@ describe('Tutorial builder', () => {
   });
 
   describe('file block', () => {
-    // let unpatch: any;
-
-    // beforeEach(() => {
-    //   unpatch = patchFs(vol);
-    // });
-
-    // afterEach(() => {
-    //   unpatch();
-    // });
-
     it('file not found', async () => {
       const markdown = stripLeadingSpaces(`\
         Text before file block
@@ -101,10 +62,6 @@ describe('Tutorial builder', () => {
     });
 
     it('file', async () => {
-      // patchFs(vol);
-      // initializeFS(files);
-      // console.log(volume.toJSON());
-
       const markdown = stripLeadingSpaces(`\
         Text before file block
       
@@ -143,8 +100,6 @@ describe('Tutorial builder', () => {
     });
 
     it('file numbered', async () => {
-      // patchFs(vol);
-
       const markdown = stripLeadingSpaces(`\
         Text before file block
       
@@ -186,8 +141,6 @@ describe('Tutorial builder', () => {
     });
 
     it('file yaml', async () => {
-      // patchFs(vol);
-
       const markdown = stripLeadingSpaces(`\
         Text before file block
       
