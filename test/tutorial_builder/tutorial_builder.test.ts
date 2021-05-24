@@ -103,7 +103,7 @@ describe('Tutorial builder', () => {
     it('file', async () => {
       // patchFs(vol);
       // initializeFS(files);
-      console.log(volume.toJSON());
+      // console.log(volume.toJSON());
 
       const markdown = stripLeadingSpaces(`\
         Text before file block
@@ -369,7 +369,7 @@ describe('Tutorial builder', () => {
       const markdown = stripLeadingSpaces(`\
         Text before interactive block
 
-        [//]: # (interactive one > node.exe -i)
+        [//]: # (interactive one > node -i)
         ~~~
         > a = 1+2
         > b = 3
@@ -382,7 +382,7 @@ describe('Tutorial builder', () => {
       const expected = stripLeadingSpaces(`\
         Text before interactive block
       
-        [//]: # (interactive one > node.exe -i)
+        [//]: # (interactive one > node -i)
         ~~~
         > a = 1+2
         3
@@ -408,7 +408,7 @@ describe('Tutorial builder', () => {
       const markdown = stripLeadingSpaces(`\
         Text before interactive block
 
-        [//]: # (interactive one > node.exe -i)
+        [//]: # (interactive one > node -i)
         ~~~
         Placeholder for prologue
         > a = 1+2
@@ -422,7 +422,7 @@ describe('Tutorial builder', () => {
       const expected = stripLeadingSpaces(`\
         Text before interactive block
       
-        [//]: # (interactive one > node.exe -i)
+        [//]: # (interactive one > node -i)
         ~~~
         Welcome to Node.js v16.0.0.
         Type ".help" for more information.
@@ -450,14 +450,14 @@ describe('Tutorial builder', () => {
       const markdown = stripLeadingSpaces(`\
         Interactive block for session one
 
-        [//]: # (interactive one > node.exe -i)
+        [//]: # (interactive one > node -i)
         ~~~
         > a = 'hello'
         ~~~
 
         Interactive block for session two
 
-        [//]: # (interactive two > node.exe -i)
+        [//]: # (interactive two > node -i)
         ~~~
         > a
         > a = 'goodbye'
@@ -465,14 +465,14 @@ describe('Tutorial builder', () => {
 
         Return to session one
 
-        [//]: # (interactive one > node.exe -i)
+        [//]: # (interactive one > node -i)
         ~~~
         > a
         ~~~
 
         Return to session two
 
-        [//]: # (interactive two > node.exe -i)
+        [//]: # (interactive two > node -i)
         ~~~
         > a
         ~~~
@@ -481,7 +481,7 @@ describe('Tutorial builder', () => {
       const expected = stripLeadingSpaces(`\
         Interactive block for session one
 
-        [//]: # (interactive one > node.exe -i)
+        [//]: # (interactive one > node -i)
         ~~~
         > a = 'hello'
         'hello'
@@ -489,7 +489,7 @@ describe('Tutorial builder', () => {
 
         Interactive block for session two
 
-        [//]: # (interactive two > node.exe -i)
+        [//]: # (interactive two > node -i)
         ~~~
         > a
         Uncaught ReferenceError: a is not defined
@@ -499,7 +499,7 @@ describe('Tutorial builder', () => {
 
         Return to session one
 
-        [//]: # (interactive one > node.exe -i)
+        [//]: # (interactive one > node -i)
         ~~~
         > a
         'hello'
@@ -507,7 +507,7 @@ describe('Tutorial builder', () => {
 
         Return to session two
 
-        [//]: # (interactive two > node.exe -i)
+        [//]: # (interactive two > node -i)
         ~~~
         > a
         'goodbye'

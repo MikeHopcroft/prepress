@@ -1,7 +1,11 @@
 # TODO List
 
 * Top
-  * README.md code coverage badge
+  * Cleanup after code coverage
+    * Remove unionfs dependency
+    * Remove data/i.src.md
+    * Remove src/apps/spawn_test.ts
+    * README.md code coverage badge
   * Publish npm package
   * Rename tutorialBuilder
   * x Instructions to build from source
