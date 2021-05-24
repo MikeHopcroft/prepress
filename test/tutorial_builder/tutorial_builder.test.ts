@@ -395,11 +395,6 @@ describe('Tutorial builder', () => {
         Text after interactive block
       `);
 
-      // TODO:
-      //   Multiple sessions
-      //   Show prologue
-      //   Shell mode
-
       const observed = await updateMarkdown(fs, markdown);
       assert.equal(observed, expected);
     });
@@ -424,7 +419,7 @@ describe('Tutorial builder', () => {
       
         [//]: # (interactive one > node -i)
         ~~~
-        Welcome to Node.js v16.0.0.
+        Welcome to Node.js vX.Y.Z.
         Type ".help" for more information.
         > a = 1+2
         3
@@ -437,13 +432,15 @@ describe('Tutorial builder', () => {
         Text after interactive block
       `);
 
-      // TODO:
-      //   Multiple sessions
-      //   Show prologue
-      //   Shell mode
-
       const observed = await updateMarkdown(fs, markdown);
-      assert.equal(observed, expected);
+
+      // DESIGN NOTE: need to normalize the version so that the test will
+      // pass for the entire matrix of Node versions used in GitHub actions.
+      const normalized = observed.replace(
+        /(Welcome to Node.js.*\n)/,
+        'Welcome to Node.js vX.Y.Z.\n'
+      );
+      assert.equal(normalized, expected);
     });
 
     it('multiple sessions', async () => {
@@ -513,11 +510,6 @@ describe('Tutorial builder', () => {
         'goodbye'
         ~~~
       `);
-
-      // TODO:
-      //   Multiple sessions
-      //   Show prologue
-      //   Shell mode
 
       const observed = await updateMarkdown(fs, markdown);
       assert.equal(observed, expected);
