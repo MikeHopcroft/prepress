@@ -2,8 +2,17 @@
     "temp-dir" : "build/.coverage",
     "report-dir" : "build/.coverage-report",
     "reporter" : "lcov",
+    "include" : [ 
+      "src/**",
+      "test/**",
+      "build/src/**",
+      "build/test/**"
+    ],
     "exclude" : [ 
-        "build/.coverage/**", 
-        "build/.coverage-report/**" 
-        ]
+      "build/.coverage/**", 
+      "build/.coverage-report/**",
+      "build/junk",
+      "build/test/**",
+      "build/src/apps/prepress.js"
+    ]
 }

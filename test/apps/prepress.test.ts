@@ -52,7 +52,7 @@ describe('Apps', () => {
         const succeeded = await tutorialBuilderMain(argv);
         const observed = consoleLog();
         const expected =
-          ' \nExpected an <input file>.\n \nUse the -h flag for help.\n \nAborting\n ';
+          '\t\nExpected an <input file>.\n\t\nUse the -h flag for help.\n\t\nAborting\n\t';
 
         assert.isFalse(succeeded);
         assert.equal(observed, expected);
