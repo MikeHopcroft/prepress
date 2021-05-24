@@ -1,20 +1,56 @@
 import chai, {assert} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-const {patchFs} = require('fs-monkey');
-import {vol} from 'memfs';
+// import fs from 'fs';
+// const {patchFs} = require('fs-monkey');
+// import {DirectoryJSON, Volume} from 'memfs';
+import {Volume} from 'memfs';
 import 'mocha';
+// import {ufs} from 'unionfs';
 
 chai.use(chaiAsPromised);
 
+import {IFS} from '../../src/tutorial_builder/ifs';
 import {updateMarkdown} from '../../src/tutorial_builder/tutorial_builder';
 
 const files = {
   'test.txt':
     'one\ntwo\nthree\nfour\nfive\nsix\nseven\neight\nnine\nten\neleven',
 };
-vol.fromJSON(files, 'test/tutorial_builder');
+// https://github.com/streamich/unionfs/issues/453
+// const vol = Volume.fromJSON(files, 'test/tutorial_builder');
+// ufs.use(fs).use(vol as any);
+// ufs.use(vol as any).use(fs);
 
 describe('Tutorial builder', () => {
+  // let unpatch: any;
+
+  // beforeEach(() => {
+  //   unpatch = patchFs(ufs);
+  // });
+
+  // afterEach(() => {
+  //   unpatch();
+  // });
+  const volume = Volume.fromJSON({});
+  const fs: IFS = (volume as unknown) as IFS;
+  // testFS(vol as IFS);
+  // let unpatch: any;
+
+  beforeEach(() => {
+    volume.reset();
+    volume.fromJSON(files, 'test/tutorial_builder');
+    // unpatch = patchFs(volume);
+  });
+
+  afterEach(() => {
+    // unpatch();
+  });
+
+  // function initializeFS(json: DirectoryJSON) {
+  //   vol.reset();
+  //   vol.fromJSON(json, 'test/tutorial_builder')
+  // }
+
   it('bad block', async () => {
     const markdown = stripLeadingSpaces(`\
       Text before block
@@ -29,12 +65,22 @@ describe('Tutorial builder', () => {
     `);
 
     await assert.isRejected(
-      updateMarkdown(markdown),
+      updateMarkdown(fs, markdown),
       'Unknown block type "bad_command_name"'
     );
   });
 
   describe('file block', () => {
+    // let unpatch: any;
+
+    // beforeEach(() => {
+    //   unpatch = patchFs(vol);
+    // });
+
+    // afterEach(() => {
+    //   unpatch();
+    // });
+
     it('file not found', async () => {
       const markdown = stripLeadingSpaces(`\
         Text before file block
@@ -49,13 +95,15 @@ describe('Tutorial builder', () => {
       `);
 
       await assert.isRejected(
-        updateMarkdown(markdown),
+        updateMarkdown(fs, markdown),
         "ENOENT: no such file or directory, open 'bad_file_name'"
       );
     });
 
     it('file', async () => {
-      patchFs(vol);
+      // patchFs(vol);
+      // initializeFS(files);
+      console.log(volume.toJSON());
 
       const markdown = stripLeadingSpaces(`\
         Text before file block
@@ -90,12 +138,12 @@ describe('Tutorial builder', () => {
         Text after file block
       `);
 
-      const observed = await updateMarkdown(markdown);
+      const observed = await updateMarkdown(fs, markdown);
       assert.equal(observed, expected);
     });
 
     it('file numbered', async () => {
-      patchFs(vol);
+      // patchFs(vol);
 
       const markdown = stripLeadingSpaces(`\
         Text before file block
@@ -133,12 +181,12 @@ describe('Tutorial builder', () => {
       `
       );
 
-      const observed = await updateMarkdown(markdown);
+      const observed = await updateMarkdown(fs, markdown);
       assert.equal(observed, expected);
     });
 
     it('file yaml', async () => {
-      patchFs(vol);
+      // patchFs(vol);
 
       const markdown = stripLeadingSpaces(`\
         Text before file block
@@ -173,7 +221,7 @@ describe('Tutorial builder', () => {
         Text after file block
       `);
 
-      const observed = await updateMarkdown(markdown);
+      const observed = await updateMarkdown(fs, markdown);
       assert.equal(observed, expected);
     });
   });
@@ -199,7 +247,7 @@ describe('Tutorial builder', () => {
       `);
 
       await assert.isRejected(
-        updateMarkdown(markdown),
+        updateMarkdown(fs, markdown),
         'script returned non-zero status 1'
       );
     });
@@ -230,7 +278,7 @@ describe('Tutorial builder', () => {
         Text after script block
       `);
 
-      const result = await updateMarkdown(markdown);
+      const result = await updateMarkdown(fs, markdown);
       const observed = result.replace(/(\d+\.\d+\.\d+)/, 'X.Y.Z');
       assert.equal(observed, expected);
     });
@@ -251,7 +299,7 @@ describe('Tutorial builder', () => {
       `);
 
       await assert.isRejected(
-        updateMarkdown(markdown),
+        updateMarkdown(fs, markdown),
         'spawnSync executable_does_not_exist ENOENT'
       );
     });
@@ -282,7 +330,7 @@ describe('Tutorial builder', () => {
         Text after spawn block
       `);
 
-      const observed = await updateMarkdown(markdown);
+      const observed = await updateMarkdown(fs, markdown);
       assert.equal(observed, expected);
     });
   });
@@ -311,7 +359,7 @@ describe('Tutorial builder', () => {
         Text after verbatim block
       `);
 
-      const observed = await updateMarkdown(markdown);
+      const observed = await updateMarkdown(fs, markdown);
       assert.equal(observed, expected);
     });
   });
@@ -352,7 +400,7 @@ describe('Tutorial builder', () => {
       //   Show prologue
       //   Shell mode
 
-      const observed = await updateMarkdown(markdown);
+      const observed = await updateMarkdown(fs, markdown);
       assert.equal(observed, expected);
     });
 
@@ -394,7 +442,7 @@ describe('Tutorial builder', () => {
       //   Show prologue
       //   Shell mode
 
-      const observed = await updateMarkdown(markdown);
+      const observed = await updateMarkdown(fs, markdown);
       assert.equal(observed, expected);
     });
 
@@ -471,7 +519,7 @@ describe('Tutorial builder', () => {
       //   Show prologue
       //   Shell mode
 
-      const observed = await updateMarkdown(markdown);
+      const observed = await updateMarkdown(fs, markdown);
       assert.equal(observed, expected);
     });
   });

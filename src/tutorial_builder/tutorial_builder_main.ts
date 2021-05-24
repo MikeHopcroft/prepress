@@ -185,7 +185,7 @@ async function convertFile(inFile: string, outFile: string, dryrun: boolean) {
   }
 
   const text = fs.readFileSync(inFile, 'utf8');
-  const updatedText = await updateMarkdown(text);
+  const updatedText = await updateMarkdown(fs, text);
 
   if (dryrun) {
     console.log(updatedText);

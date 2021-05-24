@@ -1,16 +1,38 @@
 import {assert} from 'chai';
 const {patchFs} = require('fs-monkey');
-import {Volume} from 'memfs';
+import {DirectoryJSON, Volume} from 'memfs';
 import 'mocha';
 import sinon from 'sinon';
 
 import {tutorialBuilderMain} from '../../src/tutorial_builder';
 
 describe('Apps', () => {
+  // const vol = Volume.fromJSON({
+  //   '/input.md': 'some test',
+  //   '/input.src.md': 'some test',
+  //   '/output.md': 'some more text',
+  //   '/src/input.src.md': 'some text',
+  // });
+  const vol = Volume.fromJSON({});
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let unpatch: any;
+
+  beforeEach(() => {
+    unpatch = patchFs(vol);
+  });
+
+  afterEach(() => {
+    unpatch();
+  });
+
+  function initializeFS(json: DirectoryJSON) {
+    vol.reset();
+    vol.fromJSON(json);
+  }
+
   describe('prepress', () => {
     describe('errors', () => {
       let consoleSpy: sinon.SinonSpy;
-
       beforeEach(() => {
         consoleSpy = sinon.fake();
         sinon.replace(console, 'log', consoleSpy);
@@ -37,8 +59,9 @@ describe('Apps', () => {
       });
 
       it('input file not found', async () => {
-        const vol = Volume.fromJSON({});
-        patchFs(vol);
+        // const vol = Volume.fromJSON({});
+        // patchFs(vol);
+        initializeFS({});
 
         const argv = [
           'node',
@@ -57,10 +80,13 @@ describe('Apps', () => {
       });
 
       it('input file does not end with .src.md', async () => {
-        const vol = Volume.fromJSON({
+        // const vol = Volume.fromJSON({
+        //   '/input.md': 'some test',
+        // });
+        // patchFs(vol);
+        initializeFS({
           '/input.md': 'some test',
         });
-        patchFs(vol);
 
         const argv = [
           'node',
@@ -77,11 +103,13 @@ describe('Apps', () => {
       });
 
       it('output file ends with .src.md', async () => {
-        const vol = Volume.fromJSON({
+        // const vol = Volume.fromJSON({
+        //   '/input.src.md': 'some test',
+        // });
+        // patchFs(vol);
+        initializeFS({
           '/input.src.md': 'some test',
         });
-        patchFs(vol);
-
         const argv = [
           'node',
           'build/apps/prepress.js',
@@ -97,11 +125,15 @@ describe('Apps', () => {
       });
 
       it('input directory to existing output file', async () => {
-        const vol = Volume.fromJSON({
+        // const vol = Volume.fromJSON({
+        //   '/src/input.src.md': 'some text',
+        //   '/output.md': 'some more text',
+        // });
+        // patchFs(vol);
+        initializeFS({
           '/src/input.src.md': 'some text',
           '/output.md': 'some more text',
         });
-        patchFs(vol);
 
         const argv = ['node', 'build/apps/prepress.js', '/src', '/output.md'];
 
@@ -130,12 +162,15 @@ describe('Apps', () => {
       it('from file to explicit existing file', async () => {
         const sourceText = 'any source text';
         const generatedText = sourceText;
-        const vol = Volume.fromJSON({
+        // const vol = Volume.fromJSON({
+        //   '/input.src.md': sourceText,
+        //   '/output.md': 'other text',
+        // });
+        // patchFs(vol);
+        initializeFS({
           '/input.src.md': sourceText,
           '/output.md': 'other text',
         });
-
-        patchFs(vol);
 
         const argv = [
           'node',
@@ -160,11 +195,13 @@ describe('Apps', () => {
       it('from file to explicit new file', async () => {
         const sourceText = 'any source text';
         const generatedText = sourceText;
-        const vol = Volume.fromJSON({
+        // const vol = Volume.fromJSON({
+        //   '/input.src.md': sourceText,
+        // });
+        // patchFs(vol);
+        initializeFS({
           '/input.src.md': sourceText,
         });
-
-        patchFs(vol);
 
         const argv = [
           'node',
@@ -189,12 +226,15 @@ describe('Apps', () => {
       it('from file to implicit existing file', async () => {
         const sourceText = 'any source text';
         const generatedText = sourceText;
-        const vol = Volume.fromJSON({
+        // const vol = Volume.fromJSON({
+        //   '/input.src.md': sourceText,
+        //   '/input.md': 'other text',
+        // });
+        // patchFs(vol);
+        initializeFS({
           '/input.src.md': sourceText,
           '/input.md': 'other text',
         });
-
-        patchFs(vol);
 
         const argv = ['node', 'build/apps/prepress.js', '/input.src.md'];
 
@@ -214,11 +254,13 @@ describe('Apps', () => {
       it('from file to implicit new file', async () => {
         const sourceText = 'any source text';
         const generatedText = sourceText;
-        const vol = Volume.fromJSON({
+        // const vol = Volume.fromJSON({
+        //   '/input.src.md': sourceText,
+        // });
+        // patchFs(vol);
+        initializeFS({
           '/input.src.md': sourceText,
         });
-
-        patchFs(vol);
 
         const argv = ['node', 'build/apps/prepress.js', '/input.src.md'];
 
@@ -238,12 +280,16 @@ describe('Apps', () => {
       it('from file to explicit directory (new file)', async () => {
         const sourceText = 'any source text';
         const generatedText = sourceText;
-        const vol = Volume.fromJSON({
+        // const vol = Volume.fromJSON({
+        //   '/src/dir1/dir2/input.src.md': sourceText,
+        //   '/output': null,
+        // });
+
+        // patchFs(vol);
+        initializeFS({
           '/src/dir1/dir2/input.src.md': sourceText,
           '/output': null,
         });
-
-        patchFs(vol);
 
         const argv = [
           'node',
@@ -268,12 +314,16 @@ describe('Apps', () => {
       it('from file to explicit directory (existing file)', async () => {
         const sourceText = 'any source text';
         const generatedText = sourceText;
-        const vol = Volume.fromJSON({
+        // const vol = Volume.fromJSON({
+        //   '/src/dir1/dir2/input.src.md': sourceText,
+        //   '/output/input.md': 'some text',
+        // });
+
+        // patchFs(vol);
+        initializeFS({
           '/src/dir1/dir2/input.src.md': sourceText,
           '/output/input.md': 'some text',
         });
-
-        patchFs(vol);
 
         const argv = [
           'node',
@@ -299,14 +349,20 @@ describe('Apps', () => {
         const sourceText1 = 'any source text';
         const sourceText2 = 'text two';
         const sourceText3 = 'a third text';
-        const vol = Volume.fromJSON({
+        // const vol = Volume.fromJSON({
+        //   '/src/one.src.md': sourceText1,
+        //   '/src/two.src.md': sourceText2,
+        //   '/src/three.src.md': sourceText3,
+        //   '/dest/one.md': 'some text',
+        // });
+
+        // patchFs(vol);
+        initializeFS({
           '/src/one.src.md': sourceText1,
           '/src/two.src.md': sourceText2,
           '/src/three.src.md': sourceText3,
           '/dest/one.md': 'some text',
         });
-
-        patchFs(vol);
 
         const argv = ['node', 'build/apps/prepress.js', '/src', '/dest'];
 
@@ -331,13 +387,18 @@ describe('Apps', () => {
         const sourceText1 = 'any source text';
         const sourceText2 = 'text two';
         const sourceText3 = 'a third text';
-        const vol = Volume.fromJSON({
+        // const vol = Volume.fromJSON({
+        //   '/src/one.src.md': sourceText1,
+        //   '/src/two.src.md': sourceText2,
+        //   '/src/three.src.md': sourceText3,
+        // });
+
+        // patchFs(vol);
+        initializeFS({
           '/src/one.src.md': sourceText1,
           '/src/two.src.md': sourceText2,
           '/src/three.src.md': sourceText3,
         });
-
-        patchFs(vol);
 
         const argv = ['node', 'build/apps/prepress.js', '/src', '/dest'];
 
@@ -362,12 +423,17 @@ describe('Apps', () => {
         const sourceText1 = 'any source text';
         const sourceText2 = 'text two';
         const sourceText3 = 'a third text';
-        const vol = Volume.fromJSON({
+        // const vol = Volume.fromJSON({
+        //   '/src/one.src.md': sourceText1,
+        //   '/src/two.src.md': sourceText2,
+        //   '/src/nested/three.src.md': sourceText3,
+        // });
+        // patchFs(vol);
+        initializeFS({
           '/src/one.src.md': sourceText1,
           '/src/two.src.md': sourceText2,
           '/src/nested/three.src.md': sourceText3,
         });
-        patchFs(vol);
 
         const argv = ['node', 'build/apps/prepress.js', '/src', '/dest', '-r'];
         const succeeded = await tutorialBuilderMain(argv);
@@ -391,12 +457,17 @@ describe('Apps', () => {
         const sourceText1 = 'any source text';
         const sourceText2 = 'text two';
         const sourceText3 = 'a third text';
-        const vol = Volume.fromJSON({
+        // const vol = Volume.fromJSON({
+        //   '/src/one.src.md': sourceText1,
+        //   '/src/two.src.md': sourceText2,
+        //   '/src/three.src.md': sourceText3,
+        // });
+        // patchFs(vol);
+        initializeFS({
           '/src/one.src.md': sourceText1,
           '/src/two.src.md': sourceText2,
           '/src/three.src.md': sourceText3,
         });
-        patchFs(vol);
 
         const argv = ['node', 'build/apps/prepress.js', '/src'];
         await tutorialBuilderMain(argv);
@@ -419,12 +490,17 @@ describe('Apps', () => {
         const sourceText1 = 'any source text';
         const sourceText2 = 'text two';
         const sourceText3 = 'a third text';
-        const vol = Volume.fromJSON({
+        // const vol = Volume.fromJSON({
+        //   '/src/one.src.md': sourceText1,
+        //   '/src/two.src.md': sourceText2,
+        //   '/src/nested/three.src.md': sourceText3,
+        // });
+        // patchFs(vol);
+        initializeFS({
           '/src/one.src.md': sourceText1,
           '/src/two.src.md': sourceText2,
           '/src/nested/three.src.md': sourceText3,
         });
-        patchFs(vol);
 
         const argv = ['node', 'build/apps/prepress.js', '/src', '-r'];
         const succeeded = await tutorialBuilderMain(argv);

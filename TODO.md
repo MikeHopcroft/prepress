@@ -1,15 +1,15 @@
 # TODO List
 
 * Top
+  * README.md code coverage badge
+  * Publish npm package
+  * Rename tutorialBuilder
   * x Instructions to build from source
   * x Multiple sessions
   * xRegister commands
     * x Script error running globally installed version
   * x Import *
-  * Publish npm package
-  * Write documentation
-  * README.md code coverage badge
-  * Rename tutorialBuilder
+  * x Write documentation
   * Convert all paths and path operations to posix.
     * https://stackoverflow.com/questions/53799385/how-can-i-convert-a-windows-path-to-posix-path-using-node-path
     * somePathString.split(path.sep).join(path.posix.sep);

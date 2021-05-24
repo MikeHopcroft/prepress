@@ -1,10 +1,11 @@
 import {spawnSync} from 'child_process';
 
+import {IFS} from './ifs';
 import {AnySection} from './markdown_parser';
 import {Entry, makeBlock} from './tutorial_builder';
 import {parseArgs} from './utilities';
 
-export function scriptProcessor(blocks: AnySection[], group: Entry[]) {
+export function scriptProcessor(fs: IFS, blocks: AnySection[], group: Entry[]) {
   for (const entry of group) {
     const block = entry.block;
     const [[executable], args] = parseArgs(
