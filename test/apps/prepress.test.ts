@@ -3,7 +3,6 @@ const {patchFs} = require('fs-monkey');
 import {DirectoryJSON, Volume} from 'memfs';
 import 'mocha';
 import sinon from 'sinon';
-import stripAnsi from 'strip-ansi';
 
 import {tutorialBuilderMain} from '../../src/tutorial_builder';
 
@@ -23,30 +22,50 @@ describe('Apps', () => {
       return consoleSpy.args.map(x => x[0]).join('\n');
     }
 
-    it('show usage', async () => {
+    it('show usage -h', async () => {
       const argv = ['node', 'build/apps/prepress.js', '-h'];
-
       const succeeded = await tutorialBuilderMain(argv);
-
-      // DESIGN NOTE: need to transform the console output for two reasons:
-      //   1. When running code coverage under NYC, the program name is `mocha`.
-      //      When running under the mocha unit test framework, the program
-      //      name is bundle.js.
-      //   2. We strip out ANSI escape codes because the copy/paste of text
-      //      from the console for the `expected` parameter does not have
-      //      escape code.
-      // ISSUE: will the carriage returns be a problem on POSIX systems?
-      // ISSUE: this test is really brittle since it is just guaranteeing
-      // and exact string. How could it be made more resiliant to code changes?
-      const observed = stripAnsi(consoleLog()).replace(
-        /node [^\s]+ </,
-        'node bundle.js <'
-      );
-      const expected =
-        '\nTutorial Builder\r\n\r\n  This utility uses a markdown file as a template for generating documentation  \r\n  by rerunning commands inside of markdown code blocks.                         \r\n\nUsage\r\n\r\n  node bundle.js <input file or dir> [<output file or dir>] [...<options>] \r\n\nOptions\r\n\r\n  -d, --dryrun       Dry run: process files and print to console \r\n  -r, --recursive    Process recursive directory tree            \r\n  -h, --help         Print help message                          \r\n';
-
       assert.isTrue(succeeded);
-      assert.equal(observed, expected);
+
+      // DESIGN NOTE: Using a simple regex to verify the existence of three
+      // specific section headers. This strikes a balance between a thorough
+      // test and a brittle test. Some considerations were
+      //   1. Handle Windows and Posix line terminations.
+      //   2. Shouldn't be sensitive to small edits in help message.
+      //   3. Shouldn't be sensitive to changes in ANSI escape codes emitted by
+      //      the command-line-usage package. Note that ANSI escape codes for
+      //      underlining prevent the use of \b to detect word boundaries in
+      //      the regex.
+      //   4. Handles mocha scenario (program name is mocha) and nyc scenario
+      //      (program name is bundle.js)
+      //   5. Should give reasonable assurance that -h and --help flags
+      //      produced a help message.
+      const observed = consoleLog();
+      const match = observed.match(/^.*Tutorial Builder.+Usage.+Options/s);
+      assert.isNotNull(match);
+    });
+
+    it('show usage --help', async () => {
+      const argv = ['node', 'build/apps/prepress.js', '--help'];
+      const succeeded = await tutorialBuilderMain(argv);
+      assert.isTrue(succeeded);
+
+      // DESIGN NOTE: Using a simple regex to verify the existence of three
+      // specific section headers. This strikes a balance between a thorough
+      // test and a brittle test. Some considerations were
+      //   1. Handle Windows and Posix line terminations.
+      //   2. Shouldn't be sensitive to small edits in help message.
+      //   3. Shouldn't be sensitive to changes in ANSI escape codes emitted by
+      //      the command-line-usage package. Note that ANSI escape codes for
+      //      underlining prevent the use of \b to detect word boundaries in
+      //      the regex.
+      //   4. Handles mocha scenario (program name is mocha) and nyc scenario
+      //      (program name is bundle.js)
+      //   5. Should give reasonable assurance that -h and --help flags
+      //      produced a help message.
+      const observed = consoleLog();
+      const match = observed.match(/^.*Tutorial Builder.+Usage.+Options/s);
+      assert.isNotNull(match);
     });
 
     describe('with mock filesystem', () => {
@@ -68,20 +87,6 @@ describe('Apps', () => {
       }
 
       describe('errors', () => {
-        // let consoleSpy: sinon.SinonSpy;
-        // beforeEach(() => {
-        //   consoleSpy = sinon.fake();
-        //   sinon.replace(console, 'log', consoleSpy);
-        // });
-
-        // afterEach(() => {
-        //   sinon.restore();
-        // });
-
-        // function consoleLog(): string {
-        //   return consoleSpy.args.map(x => x[0]).join('\n');
-        // }
-
         it('no input file', async () => {
           const argv = ['node', 'build/apps/prepress.js'];
 
