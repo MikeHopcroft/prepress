@@ -13,7 +13,7 @@ export async function tutorialBuilderMain(argv: string[]): Promise<boolean> {
 
   if (args.h || args.help) {
     showUsage();
-    return false;
+    return true;
   }
 
   const inFile = args._[0];
