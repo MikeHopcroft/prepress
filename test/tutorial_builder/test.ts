@@ -1,1 +1,10 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// This script is used by the unit tests for spawn.
+// We can't mock the filesystem for spawn.
+//
+// We might consider executing another .js file that we know is in the
+// node_modules, or perhaps run `npm`, which is a script.
+//
+///////////////////////////////////////////////////////////////////////////////
 console.log('hello, world');

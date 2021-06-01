@@ -30,19 +30,19 @@ export class PeekableSequence<T> {
     return this.current.done || false;
   }
 
-  skip(value: T): boolean {
-    if (!this.atEOS() && this.peek() === value) {
-      this.get();
-      return true;
-    }
-    return false;
-  }
+  // skip(value: T): boolean {
+  //   if (!this.atEOS() && this.peek() === value) {
+  //     this.get();
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
-  nextIs(value: T): boolean {
-    if (!this.atEOS()) {
-      return this.peek() === value;
-    }
+  // nextIs(value: T): boolean {
+  //   if (!this.atEOS()) {
+  //     return this.peek() === value;
+  //   }
 
-    return false;
-  }
+  //   return false;
+  // }
 }

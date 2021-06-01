@@ -1,4 +1,5 @@
 import {fileProcessor} from './file_processor';
+import {IFS} from './ifs';
 import {scriptProcessor} from './script_processor';
 import {spawnProcessor} from './spawn_processor';
 import {verbatimProcessor} from './verbatim_processor';
@@ -22,7 +23,7 @@ export interface Entry {
   block: CodeBlockSection;
 }
 
-export type Processor = (blocks: AnySection[], group: Entry[]) => void;
+export type Processor = (fs: IFS, blocks: AnySection[], group: Entry[]) => void;
 
 const processors = new Map<string, Processor>([
   ['file', fileProcessor],
@@ -32,11 +33,12 @@ const processors = new Map<string, Processor>([
   ['verbatim', verbatimProcessor],
 ]);
 
-export async function updateMarkdown(text: string): Promise<string> {
-  return await updateMarkdownInternal(processors, text);
+export async function updateMarkdown(fs: IFS, text: string): Promise<string> {
+  return await updateMarkdownInternal(fs, processors, text);
 }
 
 async function updateMarkdownInternal(
+  fs: IFS,
   processors: Map<string, Processor>,
   text: string
 ): Promise<string> {
@@ -60,7 +62,7 @@ async function updateMarkdownInternal(
       const message = `Unknown block type "${command}"`;
       throw new TypeError(message);
     }
-    await processor(blocks, group);
+    await processor(fs, blocks, group);
   }
 
   return combine(blocks);

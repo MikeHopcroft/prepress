@@ -1,20 +1,27 @@
 import chai, {assert} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-const {patchFs} = require('fs-monkey');
-import {vol} from 'memfs';
+import {Volume} from 'memfs';
 import 'mocha';
 
 chai.use(chaiAsPromised);
 
+import {IFS} from '../../src/tutorial_builder/ifs';
 import {updateMarkdown} from '../../src/tutorial_builder/tutorial_builder';
 
 const files = {
   'test.txt':
     'one\ntwo\nthree\nfour\nfive\nsix\nseven\neight\nnine\nten\neleven',
 };
-vol.fromJSON(files, 'test/tutorial_builder');
 
 describe('Tutorial builder', () => {
+  const volume = Volume.fromJSON({});
+  const fs: IFS = (volume as unknown) as IFS;
+
+  beforeEach(() => {
+    volume.reset();
+    volume.fromJSON(files, 'test/tutorial_builder');
+  });
+
   it('bad block', async () => {
     const markdown = stripLeadingSpaces(`\
       Text before block
@@ -29,7 +36,7 @@ describe('Tutorial builder', () => {
     `);
 
     await assert.isRejected(
-      updateMarkdown(markdown),
+      updateMarkdown(fs, markdown),
       'Unknown block type "bad_command_name"'
     );
   });
@@ -49,14 +56,12 @@ describe('Tutorial builder', () => {
       `);
 
       await assert.isRejected(
-        updateMarkdown(markdown),
+        updateMarkdown(fs, markdown),
         "ENOENT: no such file or directory, open 'bad_file_name'"
       );
     });
 
     it('file', async () => {
-      patchFs(vol);
-
       const markdown = stripLeadingSpaces(`\
         Text before file block
       
@@ -90,13 +95,11 @@ describe('Tutorial builder', () => {
         Text after file block
       `);
 
-      const observed = await updateMarkdown(markdown);
+      const observed = await updateMarkdown(fs, markdown);
       assert.equal(observed, expected);
     });
 
     it('file numbered', async () => {
-      patchFs(vol);
-
       const markdown = stripLeadingSpaces(`\
         Text before file block
       
@@ -133,13 +136,11 @@ describe('Tutorial builder', () => {
       `
       );
 
-      const observed = await updateMarkdown(markdown);
+      const observed = await updateMarkdown(fs, markdown);
       assert.equal(observed, expected);
     });
 
     it('file yaml', async () => {
-      patchFs(vol);
-
       const markdown = stripLeadingSpaces(`\
         Text before file block
       
@@ -173,7 +174,7 @@ describe('Tutorial builder', () => {
         Text after file block
       `);
 
-      const observed = await updateMarkdown(markdown);
+      const observed = await updateMarkdown(fs, markdown);
       assert.equal(observed, expected);
     });
   });
@@ -199,7 +200,7 @@ describe('Tutorial builder', () => {
       `);
 
       await assert.isRejected(
-        updateMarkdown(markdown),
+        updateMarkdown(fs, markdown),
         'script returned non-zero status 1'
       );
     });
@@ -230,7 +231,7 @@ describe('Tutorial builder', () => {
         Text after script block
       `);
 
-      const result = await updateMarkdown(markdown);
+      const result = await updateMarkdown(fs, markdown);
       const observed = result.replace(/(\d+\.\d+\.\d+)/, 'X.Y.Z');
       assert.equal(observed, expected);
     });
@@ -251,7 +252,7 @@ describe('Tutorial builder', () => {
       `);
 
       await assert.isRejected(
-        updateMarkdown(markdown),
+        updateMarkdown(fs, markdown),
         'spawnSync executable_does_not_exist ENOENT'
       );
     });
@@ -282,7 +283,7 @@ describe('Tutorial builder', () => {
         Text after spawn block
       `);
 
-      const observed = await updateMarkdown(markdown);
+      const observed = await updateMarkdown(fs, markdown);
       assert.equal(observed, expected);
     });
   });
@@ -311,7 +312,7 @@ describe('Tutorial builder', () => {
         Text after verbatim block
       `);
 
-      const observed = await updateMarkdown(markdown);
+      const observed = await updateMarkdown(fs, markdown);
       assert.equal(observed, expected);
     });
   });
@@ -321,7 +322,7 @@ describe('Tutorial builder', () => {
       const markdown = stripLeadingSpaces(`\
         Text before interactive block
 
-        [//]: # (interactive one > node.exe -i)
+        [//]: # (interactive one > node -i)
         ~~~
         > a = 1+2
         > b = 3
@@ -334,7 +335,7 @@ describe('Tutorial builder', () => {
       const expected = stripLeadingSpaces(`\
         Text before interactive block
       
-        [//]: # (interactive one > node.exe -i)
+        [//]: # (interactive one > node -i)
         ~~~
         > a = 1+2
         3
@@ -347,12 +348,7 @@ describe('Tutorial builder', () => {
         Text after interactive block
       `);
 
-      // TODO:
-      //   Multiple sessions
-      //   Show prologue
-      //   Shell mode
-
-      const observed = await updateMarkdown(markdown);
+      const observed = await updateMarkdown(fs, markdown);
       assert.equal(observed, expected);
     });
 
@@ -360,7 +356,7 @@ describe('Tutorial builder', () => {
       const markdown = stripLeadingSpaces(`\
         Text before interactive block
 
-        [//]: # (interactive one > node.exe -i)
+        [//]: # (interactive one > node -i)
         ~~~
         Placeholder for prologue
         > a = 1+2
@@ -374,9 +370,9 @@ describe('Tutorial builder', () => {
       const expected = stripLeadingSpaces(`\
         Text before interactive block
       
-        [//]: # (interactive one > node.exe -i)
+        [//]: # (interactive one > node -i)
         ~~~
-        Welcome to Node.js v16.0.0.
+        Welcome to Node.js vX.Y.Z.
         Type ".help" for more information.
         > a = 1+2
         3
@@ -389,27 +385,29 @@ describe('Tutorial builder', () => {
         Text after interactive block
       `);
 
-      // TODO:
-      //   Multiple sessions
-      //   Show prologue
-      //   Shell mode
+      const observed = await updateMarkdown(fs, markdown);
 
-      const observed = await updateMarkdown(markdown);
-      assert.equal(observed, expected);
+      // DESIGN NOTE: need to normalize the version so that the test will
+      // pass for the entire matrix of Node versions used in GitHub actions.
+      const normalized = observed.replace(
+        /(Welcome to Node.js.*\n)/,
+        'Welcome to Node.js vX.Y.Z.\n'
+      );
+      assert.equal(normalized, expected);
     });
 
     it('multiple sessions', async () => {
       const markdown = stripLeadingSpaces(`\
         Interactive block for session one
 
-        [//]: # (interactive one > node.exe -i)
+        [//]: # (interactive one > node -i)
         ~~~
         > a = 'hello'
         ~~~
 
         Interactive block for session two
 
-        [//]: # (interactive two > node.exe -i)
+        [//]: # (interactive two > node -i)
         ~~~
         > a
         > a = 'goodbye'
@@ -417,14 +415,14 @@ describe('Tutorial builder', () => {
 
         Return to session one
 
-        [//]: # (interactive one > node.exe -i)
+        [//]: # (interactive one > node -i)
         ~~~
         > a
         ~~~
 
         Return to session two
 
-        [//]: # (interactive two > node.exe -i)
+        [//]: # (interactive two > node -i)
         ~~~
         > a
         ~~~
@@ -433,7 +431,7 @@ describe('Tutorial builder', () => {
       const expected = stripLeadingSpaces(`\
         Interactive block for session one
 
-        [//]: # (interactive one > node.exe -i)
+        [//]: # (interactive one > node -i)
         ~~~
         > a = 'hello'
         'hello'
@@ -441,7 +439,7 @@ describe('Tutorial builder', () => {
 
         Interactive block for session two
 
-        [//]: # (interactive two > node.exe -i)
+        [//]: # (interactive two > node -i)
         ~~~
         > a
         Uncaught ReferenceError: a is not defined
@@ -451,7 +449,7 @@ describe('Tutorial builder', () => {
 
         Return to session one
 
-        [//]: # (interactive one > node.exe -i)
+        [//]: # (interactive one > node -i)
         ~~~
         > a
         'hello'
@@ -459,19 +457,14 @@ describe('Tutorial builder', () => {
 
         Return to session two
 
-        [//]: # (interactive two > node.exe -i)
+        [//]: # (interactive two > node -i)
         ~~~
         > a
         'goodbye'
         ~~~
       `);
 
-      // TODO:
-      //   Multiple sessions
-      //   Show prologue
-      //   Shell mode
-
-      const observed = await updateMarkdown(markdown);
+      const observed = await updateMarkdown(fs, markdown);
       assert.equal(observed, expected);
     });
   });

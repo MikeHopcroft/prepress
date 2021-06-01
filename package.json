@@ -10,7 +10,13 @@
   "author": "Michael Hopcroft",
   "license": "MIT",
   "keywords": [
-    "markdown"
+    "markdown",
+    "block",
+    "code block",
+    "fenced code block",
+    "documentation",
+    "examples",
+    "generator"
   ],
   "bin": {
     "prepress": "build/src/apps/prepress.js"
@@ -19,6 +25,7 @@
   "scripts": {
     "docs": "node build/src/apps/prepress.js documentation/README.src.md README.md",
     "test": "mocha 'build/test/**/*.js'",
+    "test-coverage": "nyc --all npm run test",
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "tsc",
@@ -43,6 +50,7 @@
     "gts": "^3.0.3",
     "memfs": "^3.2.2",
     "mocha": "^8.2.1",
+    "nyc": "^15.1.0",
     "sinon": "^10.0.0",
     "sinon-chai": "^3.6.0",
     "typescript": "^4.0.3"

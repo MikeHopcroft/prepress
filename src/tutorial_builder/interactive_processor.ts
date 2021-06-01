@@ -1,4 +1,6 @@
 import {spawn} from 'child_process';
+
+import {IFS} from './ifs';
 import {AnySection} from './markdown_parser';
 import {Entry, makeBlock} from './tutorial_builder';
 import {parseArgs} from './utilities';
@@ -6,6 +8,7 @@ import {parseArgs} from './utilities';
 // https://github.com/nodejs/node-v0.x-archive/issues/2792
 
 export async function interactiveProcessor(
+  fs: IFS,
   blocks: AnySection[],
   group: Entry[]
 ) {

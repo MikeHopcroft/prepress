@@ -1,7 +1,7 @@
 # prepress
 
 [![Node.js CI](https://github.com/MikeHopcroft/prepress/actions/workflows/ci.yaml/badge.svg)](https://github.com/MikeHopcroft/prepress/actions/workflows/ci.yaml)
-[![Coverage Status](https://coveralls.io/repos/github/MikeHopcroft/prepress/badge.svg?branch=main)](https://coveralls.io/github/MikeHopcroft/labyrinth?branch=main)
+[![Coverage Status](https://coveralls.io/repos/github/MikeHopcroft/prepress/badge.svg?branch=main)](https://coveralls.io/github/MikeHopcroft/prepress?branch=main)
 
 
 `Prepress` is a command-line utility for programmatically generating content for

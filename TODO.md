@@ -1,15 +1,22 @@
 # TODO List
 
 * Top
+  * Publish npm package
+  * Merge mhop/coverage branch
+  * Post sources to coveralls
+  * Cleanup after code coverage
+    * x Remove unionfs dependency
+    * Remove data/i.src.md
+      * Or clean up data directory and use for samples
+    * x Remove src/apps/spawn_test.ts
+    * README.md code coverage badge
+  * Rename tutorialBuilder
   * x Instructions to build from source
   * x Multiple sessions
-  * xRegister commands
+  * x Register commands
     * x Script error running globally installed version
   * x Import *
-  * Publish npm package
-  * Write documentation
-  * README.md code coverage badge
-  * Rename tutorialBuilder
+  * x Write documentation
   * Convert all paths and path operations to posix.
     * https://stackoverflow.com/questions/53799385/how-can-i-convert-a-windows-path-to-posix-path-using-node-path
     * somePathString.split(path.sep).join(path.posix.sep);

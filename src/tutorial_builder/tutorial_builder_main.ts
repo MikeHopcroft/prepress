@@ -5,7 +5,6 @@ import mkdirp from 'mkdirp';
 import path from 'path';
 import recursiveReaddir from 'recursive-readdir';
 
-import {decodeError, printErrorMessage} from './handle-errors';
 import {updateMarkdown} from './tutorial_builder';
 
 export async function tutorialBuilderMain(argv: string[]): Promise<boolean> {
@@ -14,15 +13,21 @@ export async function tutorialBuilderMain(argv: string[]): Promise<boolean> {
 
   if (args.h || args.help) {
     showUsage();
-    return false;
+    return true;
   }
 
   const inFile = args._[0];
   const outFile = args._[1];
 
   if (!inFile) {
-    const message = 'Expected an <input file>.';
-    printErrorMessage(message);
+    console.log('\t');
+    console.log('Expected an <input file>.');
+    console.log('\t');
+    console.log('Use the -h flag for help.');
+    console.log('\t');
+    console.log('Aborting');
+    console.log('\t');
+
     return false;
   }
 
@@ -34,7 +39,7 @@ export async function tutorialBuilderMain(argv: string[]): Promise<boolean> {
       args.d === true
     );
   } catch (e) {
-    decodeError(e);
+    console.log(`Error: ${e.message}`);
     return false;
   }
 
@@ -185,7 +190,7 @@ async function convertFile(inFile: string, outFile: string, dryrun: boolean) {
   }
 
   const text = fs.readFileSync(inFile, 'utf8');
-  const updatedText = await updateMarkdown(text);
+  const updatedText = await updateMarkdown(fs, text);
 
   if (dryrun) {
     console.log(updatedText);

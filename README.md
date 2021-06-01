@@ -1,7 +1,7 @@
 # prepress
 
 [![Node.js CI](https://github.com/MikeHopcroft/prepress/actions/workflows/ci.yaml/badge.svg)](https://github.com/MikeHopcroft/prepress/actions/workflows/ci.yaml)
-[![Coverage Status](https://coveralls.io/repos/github/MikeHopcroft/prepress/badge.svg?branch=main)](https://coveralls.io/github/MikeHopcroft/labyrinth?branch=main)
+[![Coverage Status](https://coveralls.io/repos/github/MikeHopcroft/prepress/badge.svg?branch=main)](https://coveralls.io/github/MikeHopcroft/prepress?branch=main)
 
 
 `Prepress` is a command-line utility for programmatically generating content for
@@ -325,16 +325,16 @@ hello, world
       √ file yaml
     script
       - bad script
-      √ good script (859ms)
+      √ good script (805ms)
     spawn
       √ bad executable
-      √ good executable (65ms)
+      √ good executable (54ms)
     verbatim block
       √ verbatim
     interactive block
-      √ suppress prologue (78ms)
-      √ display prologue (73ms)
-      √ multiple sessions (136ms)
+      √ suppress prologue (70ms)
+      √ display prologue (65ms)
+      √ multiple sessions (140ms)
 
 
   28 passing (1s)
