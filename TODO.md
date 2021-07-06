@@ -4,6 +4,8 @@
   * Publish npm package
   * Merge mhop/coverage branch
   * Post sources to coveralls
+  * Cleanup ifs.ts
+  * Is sinon-chai still needed?
   * Cleanup after code coverage
     * x Remove unionfs dependency
     * Remove data/i.src.md
