@@ -1,8 +1,9 @@
+import stripAnsi from 'strip-ansi';
+
 import {fileProcessor} from './file_processor';
 import {IFS} from './ifs';
-import {scriptProcessor} from './script_processor';
-import {spawnProcessor} from './spawn_processor';
-import {verbatimProcessor} from './verbatim_processor';
+import {interactiveProcessor} from './interactive_processor';
+import {interactiveProcessor2} from './interactive_processor2';
 
 import {
   AnySection,
@@ -11,7 +12,11 @@ import {
   SectionType,
   TextSection,
 } from './markdown_parser';
-import {interactiveProcessor} from './interactive_processor';
+
+import {scriptProcessor} from './script_processor';
+import {spawnProcessor} from './spawn_processor';
+import {verbatimProcessor} from './verbatim_processor';
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -27,7 +32,7 @@ export type Processor = (fs: IFS, blocks: AnySection[], group: Entry[]) => void;
 
 const processors = new Map<string, Processor>([
   ['file', fileProcessor],
-  ['interactive', interactiveProcessor],
+  ['interactive', interactiveProcessor2],
   ['script', scriptProcessor],
   ['spawn', spawnProcessor],
   ['verbatim', verbatimProcessor],
@@ -73,7 +78,7 @@ function combine(blocks: AnySection[]): string {
   for (const block of blocks) {
     lines.push(...block.body);
   }
-  return lines.join('\n');
+  return stripAnsi(lines.join('\n'));
 }
 
 export function makeBlock(

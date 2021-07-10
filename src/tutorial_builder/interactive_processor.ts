@@ -12,7 +12,7 @@ export async function interactiveProcessor(
   blocks: AnySection[],
   group: Entry[]
 ) {
-  // console.log('interactiveProcessor()');
+  console.log('interactiveProcessor()');
   const sessions = groupBySession(group);
 
   for (const session of sessions.values()) {
@@ -71,8 +71,8 @@ function* cmdGenerator(
   group: Entry[],
   prologue: string
 ): Generator<string, void, string> {
-  // console.log(`cmdGenerator: prompt="${prompt}", prologue="${prologue}"`);
-  const keepPrologue = !group[0].block.body[0].startsWith(prompt);
+  console.log(`cmdGenerator: prompt="${prompt}", prologue=${JSON.stringify(prologue)}`);
+  const keepPrologue = group[0].block.body[0] && !group[0].block.body[0].startsWith(prompt);
   for (const [index, entry] of group.entries()) {
     const block = entry.block;
 
@@ -100,9 +100,13 @@ function* cmdGenerator(
     }
 
     // Update the block.
-    // NOTE: slice() on next line trims off final prompt and newline.
-    const body = [bodyFragments.join('').slice(0, -prompt.length - 1)];
-    blocks[entry.index] = makeBlock(block, body);
+    if (bodyFragments.length ===1 && bodyFragments[0] === prompt) {
+      blocks[entry.index] = makeBlock(block, []);
+    } else {
+      // NOTE: slice() on next line trims off final prompt and newline.
+      const body = [bodyFragments.join('').slice(0, -prompt.length - 1)];
+      blocks[entry.index] = makeBlock(block, body);
+    }
   }
 }
 
@@ -112,7 +116,8 @@ function startSession(
   args: string[],
   factory: CmdGeneratorFactory
 ): Promise<string> {
-  // console.log(`session("${prompt}", "${executable}", "${args}")`);
+  // const prompt = barePrompt + ' ';
+  console.log(`session("${prompt}", "${executable}", "${args}")`);
 
   return new Promise<string>((resolve, reject) => {
     try {
@@ -136,6 +141,7 @@ function startSession(
       // eslint-disable-next-line no-inner-declarations
       function process(c: string) {
         text += c;
+        console.log(`process(${JSON.stringify(c)}): nextMatch=${nextMatch}: text=${JSON.stringify(text)}`);
         if (c === '\n' || c === '\r') {
           // We're at the beginning of a line.
           // Start comparing with the first character of the prompt.
@@ -146,17 +152,21 @@ function startSession(
             // We've encountered a prompt.
             // Reset the state machine.
             nextMatch = 0;
+            // nextMatch = undefined;
 
+            // TODO: REVIEW: why is commands lazily initialized? Perhaps becausei needs text prologue?
             if (commands === undefined) {
               commands = factory(text);
             }
 
-            // console.log(`commands.next("${text}")`);
+            console.log(`commands.next(${JSON.stringify(text)})`);
             const curr = commands.next(text);
             if (curr.done) {
+              console.log(`curr.done is true`);
               iStream.end();
             } else {
               // Dispatch the next command.
+              console.log(`Dispatch ${JSON.stringify(curr.value)}`);
               iStream.write(curr.value + '\n');
             }
 
@@ -170,7 +180,7 @@ function startSession(
 
       oStream.on('data', (data: Buffer) => {
         const text = data.toString('utf8');
-        // console.log(`oStream: "${text}"`);
+        console.log(`onData: text=${JSON.stringify(text)}`);
         for (const c of text) {
           process(c);
         }

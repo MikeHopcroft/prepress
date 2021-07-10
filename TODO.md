@@ -1,9 +1,13 @@
 # TODO List
 
 * Top
+  * Interactive
+    * Print out blank prompts
+    * Suppress last prompt
   * Publish npm package
   * Merge mhop/coverage branch
   * Post sources to coveralls
+  * processMarkdown2()
   * Cleanup ifs.ts
   * Is sinon-chai still needed?
   * Cleanup after code coverage

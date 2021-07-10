@@ -318,6 +318,91 @@ describe('Tutorial builder', () => {
   });
 
   describe('interactive block', () => {
+    // it('temp', async () => {
+    //   const markdown = stripLeadingSpaces(`\
+    //   [//]: # (interactive one % node ../menubot/prixfixe/build/samples/repl.js -x -d=../menubot/prixfixe/samples/menu)
+    //   ~~~
+    //   A few lines
+    //   % .help
+    //   %
+    //   ~~~
+    //   `);
+
+    //   const expected = 'abc';
+    //   const observed = await updateMarkdown(fs, markdown);
+    //   assert.equal(observed, expected);
+    // });
+
+    // Causes
+    //   TypeError: Cannot read property 'startsWith' of undefined
+    // Interactive option to show command line (similar to spawn)
+    // x Completely empty block
+    // x Option to show trailing prompt
+    // Errors when follow-on sessions have prompt or param mismatches
+    // Strip ANSI control characters
+    it('empty body', async () => {
+      const markdown = stripLeadingSpaces(`\
+        Text before interactive block
+
+        [//]: # (interactive one > node -i)
+        ~~~
+        ~~~
+      
+        Text after interactive block
+      `);
+
+      const expected = stripLeadingSpaces(`\
+        Text before interactive block
+      
+        [//]: # (interactive one > node -i)
+        ~~~
+        ~~~
+      
+        Text after interactive block
+      `);
+
+      const observed = await updateMarkdown(fs, markdown);
+      assert.equal(observed, expected);
+    });
+
+    it('preserve empty prompt', async () => {
+      const markdown = stripLeadingSpaces(`\
+        Text before interactive block
+
+        [//]: # (interactive one > node -i)
+        ~~~
+        > a = 1+2
+        >
+        > b = 3
+        > a + b
+        >
+        ~~~
+      
+        Text after interactive block
+      `);
+
+      const expected = stripLeadingSpaces(`\
+        Text before interactive block
+      
+        [//]: # (interactive one > node -i)
+        ~~~
+        > a = 1+2
+        3
+        >
+        > b = 3
+        3
+        > a + b
+        6
+        >
+        ~~~
+      
+        Text after interactive block
+      `);
+
+      const observed = await updateMarkdown(fs, markdown);
+      assert.equal(observed, expected);
+    });
+
     it('suppress prologue', async () => {
       const markdown = stripLeadingSpaces(`\
         Text before interactive block
@@ -394,6 +479,55 @@ describe('Tutorial builder', () => {
         'Welcome to Node.js vX.Y.Z.\n'
       );
       assert.equal(normalized, expected);
+    });
+
+    it('one session, multiple blocks', async () => {
+      const markdown = stripLeadingSpaces(`\
+        Before first block
+
+        [//]: # (interactive one > node -i)
+        ~~~
+        Prologue
+        > 1
+        >
+        > 3
+        >
+        ~~~
+
+        Before second block
+
+        [//]: # (interactive one > node -i)
+        ~~~
+        > .help
+        > 3 + 4
+        ~~~
+
+        After second block
+      `);
+
+      const expected = stripLeadingSpaces(`\
+        Before first block
+
+        [//]: # (interactive one > node -i)
+        ~~~
+        > 1 + 2
+        3
+        >
+        ~~~
+
+        Before second block
+
+        [//]: # (interactive one > node -i)
+        ~~~
+        > 3 + 4
+        7
+        ~~~
+
+        After second block
+    `);
+
+      const observed = await updateMarkdown(fs, markdown);
+      assert.equal(observed, expected);
     });
 
     it('multiple sessions', async () => {
