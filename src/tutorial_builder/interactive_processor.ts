@@ -1,18 +1,30 @@
 import {spawn} from 'child_process';
 
 import {IFS} from './ifs';
-import {AnySection} from './markdown_parser';
+import {AnySection, CodeBlockSection, Command} from './markdown_parser';
 import {Entry, makeBlock} from './tutorial_builder';
 import {parseArgs} from './utilities';
 
 // https://github.com/nodejs/node-v0.x-archive/issues/2792
+
+/******************************************************************************
+ * DESIGN FACTORS
+ *
+ * 1. Some interactive programs do nothing when presented with the string '\n',
+ *    even though pressing enter at the prompt would result in a new prompt.
+ *    Mitigate this by simulating empty lines.
+ * 2. Some interactive programs print a prompt, when presented with the string
+ *    '\n', but this prompt is not preceded by a newline. Example is 'node -i'.
+ * 3. Some interactive programs run differently, in a sort of "batch mode",
+ *    when presented with input that contains multiple newlines.
+ * 4. Some interactive programs exit, when presented with the string, '\n'.
+ */
 
 export async function interactiveProcessor(
   fs: IFS,
   blocks: AnySection[],
   group: Entry[]
 ) {
-  console.log('interactiveProcessor()');
   const sessions = groupBySession(group);
 
   for (const session of sessions.values()) {
@@ -41,8 +53,17 @@ function groupBySession(group: Entry[]) {
   return sessions;
 }
 
-type CmdGenerator = Generator<string, void, string>;
-type CmdGeneratorFactory = (prologue: string) => CmdGenerator;
+interface BlockInfo {
+  index: number;
+  commands: string[];
+  codeBlock: CodeBlockSection;
+}
+
+interface Script {
+  includePrologue: boolean;
+  invocation?: string;
+  blocks: BlockInfo[];
+}
 
 async function processSession(blocks: AnySection[], group: Entry[]) {
   const block = group[0].block;
@@ -54,74 +75,71 @@ async function processSession(blocks: AnySection[], group: Entry[]) {
     block.command.parameters
   );
 
-  // Build CmdGeneratorFactory.
-  const factory: CmdGeneratorFactory = (prologue: string) => {
-    // TODO: remove the prompt + space hack
-    return cmdGenerator(blocks, prompt + ' ', group, prologue);
-  };
+  const script = generateScript(prompt, group);
 
-  // TODO: remove the prompt + space hack
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const output = await startSession(prompt + ' ', executable, args, factory);
+  // Run script in session and gather output.
+  const output = await runScript(executable, args, prompt, script);
+
+  // Process output back into blocks.
+  updateBlocks(blocks, prompt, script, output);
 }
 
-function* cmdGenerator(
-  blocks: AnySection[],
-  prompt: string,
-  group: Entry[],
-  prologue: string
-): Generator<string, void, string> {
-  console.log(`cmdGenerator: prompt="${prompt}", prologue=${JSON.stringify(prologue)}`);
-  const keepPrologue = group[0].block.body[0] && !group[0].block.body[0].startsWith(prompt);
-  for (const [index, entry] of group.entries()) {
-    const block = entry.block;
+function generateScript(prompt: string, group: Entry[]): Script {
+  const blocks: BlockInfo[] = [];
 
-    // Get the commands in this block.
+  // Determine whether to include the prologue in this session.
+  // Prologue should be included if source block has any text
+  // before the first prompt.
+  const includePrologue =
+    group.length > 0 &&
+    group[0].block.body.length > 0 &&
+    !group[0].block.body[0].startsWith(prompt);
+
+  // Determine whether to print an invocation line in the first block
+  // of the session.
+  let invocation: string | undefined;
+  const option: Command | undefined = group[0].block.options[0];
+  if (option && option.name === 'invocation') {
+    invocation = option.parameters;
+  }
+
+  // Get the commands for each block.
+  for (const {block, index} of group) {
     const commands: string[] = [];
     for (const line of block.body) {
       if (line.startsWith(prompt)) {
-        commands.push(line.slice(prompt.length));
+        commands.push(line.slice(prompt.length).trim());
       }
     }
-
-    // Set up body for this block.
-    const bodyFragments: string[] = [];
-    if (index === 0 && keepPrologue) {
-      // Prologue appears in the first block.
-      bodyFragments.push(prologue);
-    } else {
-      bodyFragments.push(prompt);
-    }
-
-    // Run commands.
-    for (const command of commands) {
-      const output = yield command;
-      bodyFragments.push(command + '\n' + output.slice());
-    }
-
-    // Update the block.
-    if (bodyFragments.length ===1 && bodyFragments[0] === prompt) {
-      blocks[entry.index] = makeBlock(block, []);
-    } else {
-      // NOTE: slice() on next line trims off final prompt and newline.
-      const body = [bodyFragments.join('').slice(0, -prompt.length - 1)];
-      blocks[entry.index] = makeBlock(block, body);
-    }
+    blocks.push({
+      codeBlock: block,
+      commands,
+      index,
+    });
   }
+  return {includePrologue, invocation, blocks};
 }
 
-function startSession(
-  prompt: string,
+async function runScript(
   executable: string,
   args: string[],
-  factory: CmdGeneratorFactory
-): Promise<string> {
-  // const prompt = barePrompt + ' ';
-  console.log(`session("${prompt}", "${executable}", "${args}")`);
+  prompt: string,
+  script: Script
+): Promise<string[]> {
+  const detector = new PromptDetector(prompt);
+  const segments: string[] = [];
 
-  return new Promise<string>((resolve, reject) => {
+  const commands: string[] = [];
+  for (const block of script.blocks) {
+    for (const command of block.commands) {
+      commands.push(command);
+    }
+  }
+  let nextCommand = 0;
+  let ended = false;
+
+  return new Promise<string[]>((resolve, reject) => {
     try {
-      let commands: Generator<string, void, string> | undefined = undefined;
       const program = spawn(executable, args, {shell: false});
       const iStream = program.stdin;
       const oStream = program.stdout;
@@ -130,68 +148,130 @@ function startSession(
         console.log(`Error: ${e.message}`);
       });
 
-      // Position of next character to match in the prompt.
-      // An undefined value means we're looking for the beginning of a line
-      // before comparing with characters in the prompt.
-      // Initialize to zero initially to allow prompts at the first
-      // character position in the stream.
-      let nextMatch: number | undefined = 0;
-      let text = '';
-
-      // eslint-disable-next-line no-inner-declarations
-      function process(c: string) {
-        text += c;
-        console.log(`process(${JSON.stringify(c)}): nextMatch=${nextMatch}: text=${JSON.stringify(text)}`);
-        if (c === '\n' || c === '\r') {
-          // We're at the beginning of a line.
-          // Start comparing with the first character of the prompt.
-          nextMatch = 0;
-        } else if (nextMatch !== undefined && c === prompt[nextMatch]) {
-          nextMatch++;
-          if (nextMatch === prompt.length) {
-            // We've encountered a prompt.
-            // Reset the state machine.
-            nextMatch = 0;
-            // nextMatch = undefined;
-
-            // TODO: REVIEW: why is commands lazily initialized? Perhaps becausei needs text prologue?
-            if (commands === undefined) {
-              commands = factory(text);
-            }
-
-            console.log(`commands.next(${JSON.stringify(text)})`);
-            const curr = commands.next(text);
-            if (curr.done) {
-              console.log(`curr.done is true`);
-              iStream.end();
-            } else {
-              // Dispatch the next command.
-              console.log(`Dispatch ${JSON.stringify(curr.value)}`);
-              iStream.write(curr.value + '\n');
-            }
-
-            text = '';
-          }
-        } else {
-          // Character didn't match pattern. Reset state machine.
-          nextMatch = undefined;
-        }
-      }
-
       oStream.on('data', (data: Buffer) => {
         const text = data.toString('utf8');
-        console.log(`onData: text=${JSON.stringify(text)}`);
-        for (const c of text) {
-          process(c);
+        if (!ended) {
+          for (const c of text) {
+            const segment = detector.feedChar(c);
+            if (segment !== null) {
+              // We've detected a prompt and are ready to dispatch the next command.
+              // console.log(`segment = ${JSON.stringify(segment)}`);
+              segments.push(segment);
+
+              // Skip over empty commands.
+              while (
+                nextCommand < commands.length &&
+                commands[nextCommand] === ''
+              ) {
+                ++nextCommand;
+              }
+
+              if (nextCommand === commands.length) {
+                // No more commands. Close stream.
+                ended = true;
+                iStream.end();
+              } else {
+                // Dispatch the next command.
+                iStream.write(commands[nextCommand++] + '\n');
+              }
+            }
+          }
         }
       });
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       program.on('close', (code: number) => {
-        resolve(text);
+        resolve(segments);
       });
     } catch (e) {
       reject(e);
     }
   });
+}
+
+function updateBlocks(
+  blocks: AnySection[],
+  prompt: string,
+  script: Script,
+  segments: string[]
+) {
+  let body: string[] = [];
+  let nextOutput = 0;
+
+  if (script.invocation !== undefined) {
+    body.push(script.invocation);
+    body.push('');
+  }
+
+  if (script.includePrologue) {
+    body.push(segments[nextOutput]);
+  }
+  nextOutput++;
+
+  for (const block of script.blocks) {
+    for (const command of block.commands) {
+      if (command.length === 0) {
+        body.push(prompt);
+      } else {
+        body.push(prompt + ' ' + command);
+        const segment = segments[nextOutput++];
+        if (segment.length > 0) {
+          // Only allow a new line if output was actually generated.
+          body.push(segment);
+        }
+      }
+    }
+    blocks[block.index] = makeBlock(block.codeBlock, body);
+    body = [];
+  }
+}
+
+class PromptDetector {
+  prompt: string;
+  lookingForNewline = false;
+  promptCharsMatched = 0;
+  text = '';
+
+  constructor(prompt: string) {
+    this.prompt = prompt + ' ';
+  }
+
+  feedChar(c: string): string | null {
+    this.text += c;
+    if (this.lookingForNewline) {
+      if (c === '\n') {
+        this.lookForPrompt();
+      }
+    } else {
+      // Looking for the prompt or newline
+      if (c === '\n') {
+        this.lookForPrompt();
+      } else if (c === this.prompt[this.promptCharsMatched]) {
+        ++this.promptCharsMatched;
+        if (this.promptCharsMatched === this.prompt.length) {
+          const save = this.text;
+          this.text = '';
+          this.lookForNewline();
+          return this.normalize(save);
+        }
+      } else {
+        this.lookForNewline();
+      }
+    }
+    return null;
+  }
+
+  private lookForNewline() {
+    this.lookingForNewline = true;
+  }
+
+  lookForPrompt() {
+    this.lookingForNewline = false;
+    this.promptCharsMatched = 0;
+  }
+
+  private normalize(segment: string) {
+    // Trim off the prompt and any preceding CR/LF.
+    return segment.slice(0, -this.prompt.length).replace(/\r?\n$/, '');
+  }
 }

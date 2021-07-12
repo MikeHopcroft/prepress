@@ -1,8 +1,10 @@
 build/
 node_modules/
 junk*
+temp
 .env
 .DS_Store
 .node_repl_history
 .nyc_output/
 .coveralls.yml
+.repl_history

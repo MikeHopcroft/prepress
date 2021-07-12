@@ -89,7 +89,7 @@ export function parseMarkdown(text: string): AnySection[] {
   ): CodeBlockSection | undefined {
     const options: Command[] = [];
     let option: Command | undefined;
-    while (option = tryParseOption()) {
+    while ((option = tryParseOption())) {
       options.push(option);
     }
     const open = input.peek();
@@ -123,7 +123,6 @@ export function parseMarkdown(text: string): AnySection[] {
     const message = `Expected closing ${matchOpen[1]}.`;
     throw new TypeError(message);
   }
-
 
   function tryParseOption(): Command | undefined {
     if (!input.atEOS()) {

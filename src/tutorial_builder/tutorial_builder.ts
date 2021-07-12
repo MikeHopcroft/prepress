@@ -3,8 +3,6 @@ import stripAnsi from 'strip-ansi';
 import {fileProcessor} from './file_processor';
 import {IFS} from './ifs';
 import {interactiveProcessor} from './interactive_processor';
-import {interactiveProcessor2} from './interactive_processor2';
-import {interactiveProcessor3} from './interactive_processor3';
 
 import {
   AnySection,
@@ -32,7 +30,7 @@ export type Processor = (fs: IFS, blocks: AnySection[], group: Entry[]) => void;
 
 const processors = new Map<string, Processor>([
   ['file', fileProcessor],
-  ['interactive', interactiveProcessor3],
+  ['interactive', interactiveProcessor],
   ['script', scriptProcessor],
   ['spawn', spawnProcessor],
   ['verbatim', verbatimProcessor],
@@ -78,7 +76,6 @@ function combine(blocks: AnySection[]): string {
   for (const block of blocks) {
     lines.push(...block.body);
   }
-  // return lines.join('\n');
   return stripAnsi(lines.join('\n'));
 }
 

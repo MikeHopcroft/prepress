@@ -3,8 +3,6 @@ import chaiAsPromised from 'chai-as-promised';
 import {Volume} from 'memfs';
 import 'mocha';
 
-import * as realFS from 'fs';
-
 chai.use(chaiAsPromised);
 
 import {IFS} from '../../src/tutorial_builder/ifs';
@@ -320,45 +318,6 @@ describe('Tutorial builder', () => {
   });
 
   describe('interactive block', () => {
-    // it('repl', async () => {
-    //   const markdown = realFS.readFileSync('d:\\git\\prepress\\temp\\repl.src.md', 'utf8');
-    //   // const markdown = realFS.readFileSync('d:\\git\\menubot\\prixfixe\\documentation\\src\\repl.src.md', 'utf8');
-    //   const observed = await updateMarkdown(fs, markdown);
-    //   console.log(observed);
-    //   assert.fail();
-    // })
-
-    // it('temp', async () => {
-    //   const markdown = stripLeadingSpaces(`\
-    //   [//]: # (interactive one % node ../menubot/prixfixe/build/samples/repl.js -x -d=../menubot/prixfixe/samples/menu)
-    //   ~~~
-    //   % .products
-    //   % .aliases 302
-    //   % .specifics 1001
-    //   % .exclusions 501
-    //   %
-    //   ~~~ 
-
-    //   Text between
-
-    //   [//]: # (interactive one % node ../menubot/prixfixe/build/samples/repl.js -x -d=../menubot/prixfixe/samples/menu)
-    //   ~~~
-    //   % add two iced grande latte
-    //   ~~~
-    //   `);
-
-    //   const expected = 'abc';
-    //   const observed = await updateMarkdown(fs, markdown);
-    //   assert.equal(observed, expected);
-    // });
-
-    // Causes
-    //   TypeError: Cannot read property 'startsWith' of undefined
-    // Interactive option to show command line (similar to spawn)
-    // x Completely empty block
-    // x Option to show trailing prompt
-    // Errors when follow-on sessions have prompt or param mismatches
-    // Strip ANSI control characters
     it('empty body', async () => {
       const markdown = stripLeadingSpaces(`\
         Text before interactive block
@@ -406,7 +365,7 @@ describe('Tutorial builder', () => {
       [//]: # (invocation $ node -i)
       ~~~
       $ node -i
-      
+
       Welcome to Node.js vX.Y.Z.
       Type ".help" for more information.
       > 1
