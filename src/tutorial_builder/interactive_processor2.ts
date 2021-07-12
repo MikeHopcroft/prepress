@@ -123,6 +123,14 @@ async function runScript(
       //   '-x',
       //   '-d=d:\\git\\menubot\\PrixFixe\\samples\\menu'
       // ];
+
+      // executable = "node";
+      // const args = [
+      //   "d:\\git\\menubot\\PrixFixe\\build\\samples\\repl.js",
+      //   '-x',
+      //   '-d=d:\\git\\menubot\\PrixFixe\\samples\\menu'
+      // ];
+
       const program = spawn(executable, args, {shell: false});
       const iStream = program.stdin;
       const oStream = program.stdout;
@@ -133,7 +141,6 @@ async function runScript(
 
       oStream.on('data', (data: Buffer) => {
         const text = data.toString('utf8');
-        // console.log(`onData: text=${JSON.stringify(text)}`);
         output += text;
       });
 
@@ -144,7 +151,9 @@ async function runScript(
 
       for (const block of script.blocks) {
         for (const command of block.commands) {
-          iStream.write(command + '\n');
+          if (command.length > 0) {
+            iStream.write(command + '\n');
+          }
         }
       }
       iStream.end();
@@ -173,6 +182,9 @@ function updateBlocks(
 
   for (const block of script.blocks) {
     for (const command of block.commands) {
+      if (command === 'add two iced grande latte') {
+        console.log('here');
+      }
       lines.copyTurn(body, command);
     }
     blocks[block.index] = makeBlock(block.codeBlock, body);
@@ -214,74 +226,19 @@ class Lines {
   }
 
   copyTurn(body: string[], command: string) {
-    if (this.linesRemaining()) {
-      if (command.trim() !== '') {
-        body.push(this.prompt + ' ' + command);
-      } else {
-        body.push(this.prompt);
-      }
-      // if (command.trim() !== '') {
+    if (command.trim().length === 0) {
+      body.push(this.prompt);
+    } else {
+      body.push(this.prompt + ' ' + command);
+      if (this.linesRemaining()) {
         const line = this.lines[this.nextLine++];
+        // TODO: REVIEW: what is the purpose of the following if-statement?
         if (line !== '') {
           body.push(line);
         }
-      // }
+      }
     }
   }
 }
 
-class LinesOld {
-  prompt: string;
-  lines: string[];
-  lastLine: number;
-  nextLine = 0;
-
-  constructor(prompt: string, text: string) {
-    this.prompt = prompt;
-    this.lines = text.split(/\r?\n/);
-    this.lastLine = this.lines.length - 1;
-  }
-
-  linesRemaining() {
-    return this.nextLine <= this.lastLine;
-  }
-
-  copyOutput(body: string[]) {
-    while (
-      this.nextLine <= this.lastLine &&
-      !this.lines[this.nextLine].startsWith(this.prompt)
-    ) {
-      body.push(this.lines[this.nextLine++]);
-    }
-  }
-
-  skipOutput() {
-    while (
-      this.nextLine <= this.lastLine &&
-      !this.lines[this.nextLine].startsWith(this.prompt)
-    ) {
-      this.nextLine++;
-    }
-  }
-
-  // skipPrompt() {
-  //   if (
-  //     this.nextLine <= this.lastLine &&
-  //     this.lines[this.nextLine].startsWith(this.prompt)
-  //   ) {
-  //     this.nextLine++;
-  //   }
-  // }
-
-  copyPrompt(body: string[], command: string) {
-    if (
-      this.nextLine <= this.lastLine &&
-      this.lines[this.nextLine].startsWith(this.prompt)
-    ) {
-      const line = this.lines[this.nextLine++];
-      body.push(this.prompt + command);
-      body.push(line.slice(this.prompt.length + 1));
-      this.copyOutput(body);
-    }
-  }
-}
+// for (b of script.blocks) { for (c of b.commands) {console.log(c)}}
