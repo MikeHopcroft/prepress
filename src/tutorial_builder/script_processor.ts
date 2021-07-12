@@ -9,10 +9,10 @@ export function scriptProcessor(fs: IFS, blocks: AnySection[], group: Entry[]) {
   for (const entry of group) {
     const block = entry.block;
     const [[executable], args] = parseArgs(
-      block.command,
+      block.command.name,
       1,
       true,
-      block.parameters
+      block.command.parameters
     );
 
     const program = spawnSync(executable, args, {shell: true});

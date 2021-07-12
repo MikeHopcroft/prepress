@@ -8,10 +8,10 @@ export function fileProcessor(fs: IFS, blocks: AnySection[], group: Entry[]) {
   for (const entry of group) {
     const block = entry.block;
     const [[file], [numbered]] = parseArgs(
-      block.command,
+      block.command.name,
       1,
       true,
-      block.parameters
+      block.command.parameters
     );
 
     let body = fs.readFileSync(file, 'utf-8').split(/\r?\n/);

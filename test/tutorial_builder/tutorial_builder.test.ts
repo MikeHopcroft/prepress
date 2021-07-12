@@ -3,6 +3,8 @@ import chaiAsPromised from 'chai-as-promised';
 import {Volume} from 'memfs';
 import 'mocha';
 
+import * as realFS from 'fs';
+
 chai.use(chaiAsPromised);
 
 import {IFS} from '../../src/tutorial_builder/ifs';
@@ -318,13 +320,30 @@ describe('Tutorial builder', () => {
   });
 
   describe('interactive block', () => {
+    // it('repl', async () => {
+    //   const markdown = realFS.readFileSync('d:\\git\\prepress\\temp\\repl.src.md', 'utf8');
+    //   // const markdown = realFS.readFileSync('d:\\git\\menubot\\prixfixe\\documentation\\src\\repl.src.md', 'utf8');
+    //   const observed = await updateMarkdown(fs, markdown);
+    //   console.log(observed);
+    //   assert.fail();
+    // })
+
     // it('temp', async () => {
     //   const markdown = stripLeadingSpaces(`\
     //   [//]: # (interactive one % node ../menubot/prixfixe/build/samples/repl.js -x -d=../menubot/prixfixe/samples/menu)
     //   ~~~
-    //   A few lines
-    //   % .help
+    //   % .products
+    //   % .aliases 302
+    //   % .specifics 1001
+    //   % .exclusions 501
     //   %
+    //   ~~~ 
+
+    //   Text between
+
+    //   [//]: # (interactive one % node ../menubot/prixfixe/build/samples/repl.js -x -d=../menubot/prixfixe/samples/menu)
+    //   ~~~
+    //   % add two iced grande latte
     //   ~~~
     //   `);
 
@@ -363,6 +382,51 @@ describe('Tutorial builder', () => {
 
       const observed = await updateMarkdown(fs, markdown);
       assert.equal(observed, expected);
+    });
+
+    it('invocation', async () => {
+      const markdown = stripLeadingSpaces(`\
+        Text before interactive block
+
+        [//]: # (interactive one > node -i)
+        [//]: # (invocation $ node -i)
+        ~~~
+        prologue
+        > 1
+        > 2
+        ~~~
+      
+        Text after interactive block
+      `);
+
+      const expected = stripLeadingSpaces(`\
+      Text before interactive block
+
+      [//]: # (interactive one > node -i)
+      [//]: # (invocation $ node -i)
+      ~~~
+      $ node -i
+      
+      Welcome to Node.js vX.Y.Z.
+      Type ".help" for more information.
+      > 1
+      1
+      > 2
+      2
+      ~~~
+    
+      Text after interactive block
+    `);
+
+      const observed = await updateMarkdown(fs, markdown);
+
+      // DESIGN NOTE: need to normalize the version so that the test will
+      // pass for the entire matrix of Node versions used in GitHub actions.
+      const normalized = observed.replace(
+        /(Welcome to Node.js.*\n)/,
+        'Welcome to Node.js vX.Y.Z.\n'
+      );
+      assert.equal(normalized, expected);
     });
 
     it('preserve empty prompt', async () => {
@@ -498,7 +562,6 @@ describe('Tutorial builder', () => {
 
         [//]: # (interactive one > node -i)
         ~~~
-        > .help
         > 3 + 4
         ~~~
 
@@ -510,7 +573,12 @@ describe('Tutorial builder', () => {
 
         [//]: # (interactive one > node -i)
         ~~~
-        > 1 + 2
+        Welcome to Node.js v16.0.0.
+        Type ".help" for more information.
+        > 1
+        1
+        >
+        > 3
         3
         >
         ~~~

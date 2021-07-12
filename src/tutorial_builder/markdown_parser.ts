@@ -2,53 +2,9 @@ import {PeekableSequence} from './peekable_sequence';
 
 // https://stackoverflow.com/questions/4823468/comments-in-markdown
 
-export enum CodeBlockType {
-  FILE,
-  REPL,
-  SPAWN,
-  VERBATIM,
-  WARNING,
-}
-
-export interface CodeBlock {
-  type: CodeBlockType;
-  lines: string[];
-}
-
-export interface FileBlock extends CodeBlock {
-  type: CodeBlockType.FILE;
-  file: string;
-  numbered: boolean;
-}
-
-export interface ReplBlock extends CodeBlock {
-  type: CodeBlockType.REPL;
-}
-
-export interface SpawnBlock extends CodeBlock {
-  type: CodeBlockType.SPAWN;
-  executable: string;
-  args: string[];
-}
-
-export interface VerbatimBlock extends CodeBlock {
-  type: CodeBlockType.VERBATIM;
-}
-
-export interface WarningBlock extends CodeBlock {
-  type: CodeBlockType.WARNING;
-}
-
-export type AnyBlock =
-  | FileBlock
-  | ReplBlock
-  | SpawnBlock
-  | VerbatimBlock
-  | WarningBlock;
-
 ///////////////////////////////////////////////////////////////////////////////
 //
-// parseMarkdown2()
+// parseMarkdown()
 //
 // Parses markdown file into interleaved sequence of text blocks and code
 // blocks (delimited by ~~~).
@@ -68,17 +24,22 @@ export interface TextSection extends Section {
   type: SectionType.TEXT;
 }
 
+export interface Command {
+  name: string;
+  parameters: string;
+}
+
 export interface CodeBlockSection extends Section {
   type: SectionType.CODE;
-  command: string;
-  parameters: string;
+  command: Command;
+  options: Command[];
   open: string;
   close: string;
 }
 
 export type AnySection = TextSection | CodeBlockSection;
 
-export function parseMarkdown2(text: string): AnySection[] {
+export function parseMarkdown(text: string): AnySection[] {
   const input = new PeekableSequence(text.split(/\r?\n/).values());
   const blocks: AnySection[] = [];
 
@@ -118,14 +79,19 @@ export function parseMarkdown2(text: string): AnySection[] {
       }
       return block;
     } else {
-      return tryParseBlock();
+      return tryParseBlock('verbatim', '');
     }
   }
 
   function tryParseBlock(
-    command = 'verbatim',
-    parameters = ''
+    command: string,
+    parameters: string
   ): CodeBlockSection | undefined {
+    const options: Command[] = [];
+    let option: Command | undefined;
+    while (option = tryParseOption()) {
+      options.push(option);
+    }
     const open = input.peek();
     const matchOpen = open.match(/(~~~~*)(.*)/);
     if (!matchOpen) {
@@ -141,7 +107,14 @@ export function parseMarkdown2(text: string): AnySection[] {
       if (matchClose && matchClose[1] === matchOpen[1]) {
         const close = matchClose[1];
         input.get();
-        return {type: SectionType.CODE, command, parameters, open, body, close};
+        return {
+          type: SectionType.CODE,
+          command: {name: command, parameters},
+          options,
+          open,
+          body,
+          close,
+        };
       } else {
         body.push(input.get());
       }
@@ -149,5 +122,21 @@ export function parseMarkdown2(text: string): AnySection[] {
 
     const message = `Expected closing ${matchOpen[1]}.`;
     throw new TypeError(message);
+  }
+
+
+  function tryParseOption(): Command | undefined {
+    if (!input.atEOS()) {
+      const line = input.peek();
+      const match = line.match(/\[\/\/\]: # \(([^\s]+)\s+(.*)\).*$/);
+      if (match) {
+        const name = match[1];
+        const parameters = match[2];
+        input.get();
+        return {name, parameters};
+      }
+    }
+
+    return undefined;
   }
 }

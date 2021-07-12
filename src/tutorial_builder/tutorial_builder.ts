@@ -9,7 +9,7 @@ import {interactiveProcessor3} from './interactive_processor3';
 import {
   AnySection,
   CodeBlockSection,
-  parseMarkdown2,
+  parseMarkdown,
   SectionType,
   TextSection,
 } from './markdown_parser';
@@ -17,7 +17,6 @@ import {
 import {scriptProcessor} from './script_processor';
 import {spawnProcessor} from './spawn_processor';
 import {verbatimProcessor} from './verbatim_processor';
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -48,16 +47,16 @@ async function updateMarkdownInternal(
   processors: Map<string, Processor>,
   text: string
 ): Promise<string> {
-  const blocks = parseMarkdown2(text);
+  const blocks = parseMarkdown(text);
 
   const groups = new Map<string, Entry[]>();
   for (const [index, block] of blocks.entries()) {
     if (block.type === SectionType.CODE) {
-      const entry = groups.get(block.command);
+      const entry = groups.get(block.command.name);
       if (entry) {
         entry.push({index, block});
       } else {
-        groups.set(block.command, [{index, block}]);
+        groups.set(block.command.name, [{index, block}]);
       }
     }
   }
@@ -89,9 +88,13 @@ export function makeBlock(
 ): TextSection {
   // TODO: choose alternate open/close based on contents
   // of body (e.g. if body has ~~~, use ~~~~).
+  const options = block.options.map(
+    option => `[//]: # (${option.name} ${option.parameters})`
+  );
 
   const body: string[] = [
-    `[//]: # (${block.command} ${block.parameters})`,
+    `[//]: # (${block.command.name} ${block.command.parameters})`,
+    ...options,
     block.open,
     ...lines,
     block.close,

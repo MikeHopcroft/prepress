@@ -1,7 +1,7 @@
 import {spawn} from 'child_process';
 
 import {IFS} from './ifs';
-import {AnySection, CodeBlock, CodeBlockSection} from './markdown_parser';
+import {AnySection, CodeBlockSection} from './markdown_parser';
 import {Entry, makeBlock} from './tutorial_builder';
 import {parseArgs} from './utilities';
 
@@ -26,10 +26,10 @@ function groupBySession(group: Entry[]) {
     const block = entry.block;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [[sessionId, prompt, executable], args] = parseArgs(
-      block.parameters,
+      block.command.parameters,
       3,
       true,
-      block.parameters
+      block.command.parameters
     );
     const session = sessions.get(sessionId);
     if (session) {
@@ -59,10 +59,10 @@ async function processSession(blocks: AnySection[], group: Entry[]) {
   const block = group[0].block;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [[session, prompt, executable], args] = parseArgs(
-    block.command,
+    block.command.name,
     3,
     true,
-    block.parameters
+    block.command.parameters
   );
 
   // Process blocks to produce
@@ -182,9 +182,9 @@ function updateBlocks(
 
   for (const block of script.blocks) {
     for (const command of block.commands) {
-      if (command === 'add two iced grande latte') {
-        console.log('here');
-      }
+      // if (command === 'add two iced grande latte') {
+      //   console.log('here');
+      // }
       lines.copyTurn(body, command);
     }
     blocks[block.index] = makeBlock(block.codeBlock, body);

@@ -26,10 +26,10 @@ function groupBySession(group: Entry[]) {
     const block = entry.block;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [[sessionId, prompt, executable], args] = parseArgs(
-      block.parameters,
+      block.command.parameters,
       3,
       true,
-      block.parameters
+      block.command.parameters
     );
     const session = sessions.get(sessionId);
     if (session) {
@@ -48,10 +48,10 @@ async function processSession(blocks: AnySection[], group: Entry[]) {
   const block = group[0].block;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [[session, prompt, executable], args] = parseArgs(
-    block.command,
+    block.command.name,
     3,
     true,
-    block.parameters
+    block.command.parameters
   );
 
   // Build CmdGeneratorFactory.

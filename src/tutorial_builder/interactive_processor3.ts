@@ -1,7 +1,7 @@
 import {spawn} from 'child_process';
 
 import {IFS} from './ifs';
-import {AnySection, CodeBlock, CodeBlockSection} from './markdown_parser';
+import {AnySection, CodeBlockSection, Command} from './markdown_parser';
 import {Entry, makeBlock} from './tutorial_builder';
 import {parseArgs} from './utilities';
 
@@ -39,10 +39,10 @@ function groupBySession(group: Entry[]) {
     const block = entry.block;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [[sessionId, prompt, executable], args] = parseArgs(
-      block.parameters,
+      block.command.parameters,
       3,
       true,
-      block.parameters
+      block.command.parameters
     );
     const session = sessions.get(sessionId);
     if (session) {
@@ -62,18 +62,19 @@ interface BlockInfo {
 
 interface Script {
   includePrologue: boolean;
+  invocation?: string;
   blocks: BlockInfo[];
 }
 
 async function processSession(blocks: AnySection[], group: Entry[]) {
-  console.log('processSession');
+  // console.log('processSession');
   const block = group[0].block;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [[session, prompt, executable], args] = parseArgs(
-    block.command,
+    block.command.name,
     3,
     true,
-    block.parameters
+    block.command.parameters
   );
 
   // Process blocks to produce
@@ -92,7 +93,7 @@ async function processSession(blocks: AnySection[], group: Entry[]) {
 }
 
 function generateScript(prompt: string, group: Entry[]): Script {
-  console.log('generateScript');
+  // console.log('generateScript');
   const blocks: BlockInfo[] = [];
 
   // Determine whether to include the prologue in this session.
@@ -102,6 +103,12 @@ function generateScript(prompt: string, group: Entry[]): Script {
     group.length > 0 &&
     group[0].block.body.length > 0 &&
     !group[0].block.body[0].startsWith(prompt);
+
+  let invocation: string | undefined;
+  const option: Command | undefined = group[0].block.options[0];
+  if (option && option.name === 'invocation') {
+    invocation = option.parameters;
+  }
 
   // Get the commands for each block.
   for (const {block, index} of group) {
@@ -117,7 +124,7 @@ function generateScript(prompt: string, group: Entry[]): Script {
       index,
     });
   }
-  return {includePrologue, blocks};
+  return {includePrologue, invocation, blocks};
 }
 
 async function runScript(
@@ -126,7 +133,7 @@ async function runScript(
   prompt: string,
   script: Script
 ): Promise<string[]> {
-  console.log(`runScript prompt(${prompt})`);
+  // console.log(`runScript prompt(${prompt})`);
   const detector = new PromptDetector(prompt);
   const segments: string[] = [];
 
@@ -170,7 +177,7 @@ async function runScript(
             const segment = detector.feedChar(c);
             if (segment !== null) {
               // We've detected a prompt and are ready to dispatch the next command.
-              console.log(`segment = ${JSON.stringify(segment)}`);
+              // console.log(`segment = ${JSON.stringify(segment)}`);
               segments.push(segment);
 
               // Skip over empty commands.
@@ -184,7 +191,7 @@ async function runScript(
                 iStream.end();
               } else {
                 // Dispatch the next command.
-                console.log(`dispatch('${commands[nextCommand]}')`);
+                // console.log(`dispatch('${commands[nextCommand]}')`);
                 // TODO: REVIEW: why set a different mode than set by PromptDetector.feedchar()?
                 // detector.lookForPrompt();
                 iStream.write(commands[nextCommand++] + '\n');
@@ -212,6 +219,11 @@ function updateBlocks(
 ) {
   let body: string[] = [];
   let nextOutput = 0;
+
+  if (script.invocation !== undefined) {
+    body.push(script.invocation);
+    body.push('');
+  }
 
   if (script.includePrologue) {
     body.push(segments[nextOutput]);
@@ -250,30 +262,30 @@ class PromptDetector {
 
   feedChar(c: string): string | null {
     this.text += c;
-    console.log(
-      `text = ${JSON.stringify(this.text)}, lookingForNewline: ${
-        this.lookingForNewline
-      }, matched=${this.promptCharsMatched}`
-    );
+    // console.log(
+    //   `text = ${JSON.stringify(this.text)}, lookingForNewline: ${
+    //     this.lookingForNewline
+    //   }, matched=${this.promptCharsMatched}`
+    // );
     if (this.lookingForNewline) {
-      console.log(1);
+      // console.log(1);
       if (c === '\n') {
         this.lookForPrompt();
       }
     } else {
       // Looking for the prompt or newline
-      console.log(2);
-      console.log(
-        `2: c=${JSON.stringify(c)}, prompt=${JSON.stringify(
-          this.prompt
-        )}`
-      );
+      // console.log(2);
+      // console.log(
+      //   `2: c=${JSON.stringify(c)}, prompt=${JSON.stringify(
+      //     this.prompt
+      //   )}`
+      // );
       if (c === '\n') {
-        console.log('c is newline');
+        // console.log('c is newline');
         this.lookForPrompt();
       } else if (c === this.prompt[this.promptCharsMatched]) {
         ++this.promptCharsMatched;
-        console.log(`matched=${this.promptCharsMatched}`);
+        // console.log(`matched=${this.promptCharsMatched}`);
         if (this.promptCharsMatched === this.prompt.length) {
           const save = this.text;
           this.text = '';
@@ -281,14 +293,14 @@ class PromptDetector {
           return this.normalize(save);
           // return save.slice(0, -this.prompt.length);
         } else {
-          console.log(
-            `fallthrough: c=${JSON.stringify(c)}, prompt=${JSON.stringify(
-              this.prompt
-            )}`
-          );
+          // console.log(
+          //   `fallthrough: c=${JSON.stringify(c)}, prompt=${JSON.stringify(
+          //     this.prompt
+          //   )}`
+          // );
         }
       } else {
-        console.log(3);
+        // console.log(3);
         this.lookForNewline();
       }
     }
