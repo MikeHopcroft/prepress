@@ -381,10 +381,7 @@ describe('Tutorial builder', () => {
 
       // DESIGN NOTE: need to normalize the version so that the test will
       // pass for the entire matrix of Node versions used in GitHub actions.
-      const normalized = observed.replace(
-        /(Welcome to Node.js.*\n)/,
-        'Welcome to Node.js vX.Y.Z.\n'
-      );
+      const normalized = normalizeNodeVersion(observed);
       assert.equal(normalized, expected);
     });
 
@@ -497,10 +494,7 @@ describe('Tutorial builder', () => {
 
       // DESIGN NOTE: need to normalize the version so that the test will
       // pass for the entire matrix of Node versions used in GitHub actions.
-      const normalized = observed.replace(
-        /(Welcome to Node.js.*\n)/,
-        'Welcome to Node.js vX.Y.Z.\n'
-      );
+      const normalized = normalizeNodeVersion(observed);
       assert.equal(normalized, expected);
     });
 
@@ -532,7 +526,7 @@ describe('Tutorial builder', () => {
 
         [//]: # (interactive one > node -i)
         ~~~
-        Welcome to Node.js v16.0.0.
+        Welcome to Node.js vX.Y.Z.
         Type ".help" for more information.
         > 1
         1
@@ -554,7 +548,11 @@ describe('Tutorial builder', () => {
     `);
 
       const observed = await updateMarkdown(fs, markdown);
-      assert.equal(observed, expected);
+
+      // DESIGN NOTE: need to normalize the version so that the test will
+      // pass for the entire matrix of Node versions used in GitHub actions.
+      const normalized = normalizeNodeVersion(observed);
+      assert.equal(normalized, expected);
     });
 
     it('multiple sessions', async () => {
@@ -651,4 +649,11 @@ export function stripLeadingChars(count: number, text: string) {
     .split(/\r?\n/)
     .map(l => l.slice(count))
     .join('\n');
+}
+
+function normalizeNodeVersion(text: string): string {
+  return text.replace(
+    /(Welcome to Node.js.*\n)/,
+    'Welcome to Node.js vX.Y.Z.\n'
+  );
 }
