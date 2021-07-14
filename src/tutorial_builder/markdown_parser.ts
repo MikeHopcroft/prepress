@@ -67,7 +67,7 @@ export function parseMarkdown(text: string): AnySection[] {
     let parameters: string | undefined = undefined;
 
     const line = input.peek();
-    const match = line.match(/\[\/\/\]: # \(([^\s]+)\s+(.*)\).*$/);
+    const match = line.match(/^\[\/\/\]: # \(([^\s]+)\s+(.*)\).*$/);
     if (match) {
       command = match[1];
       parameters = match[2];

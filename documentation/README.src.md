@@ -125,11 +125,11 @@ The `script` command runs scripts and batch files in the shell. Here's an exampl
 ~~~
 
 ### Interactive Sessions
-The `interactive` command captures the input and output associated with one or more interative sessions with a native executable.
+The `iscript` and `ispawn` commands capture the input and output associated with one or more interative sessions with a script or native executable.
 Here's the source for an interactive block that displays a session with the `node` read-eval-print-loop:
 ~~~~
 
-[//]: # (interactive one > node -i)
+[//]: # (ispawn one > node -i)
 ~~~
 > a = 'hello from session one!'
 > b = 1 + 2
@@ -146,21 +146,24 @@ The code blocks contains commands to be submitted to the interactive session.
 Each command is preceded by the prompt.
 Here's the output of the interactive session:
 
-[//]: # (interactive one > node -i)
+[//]: # (ispawn one > node -i)
 ~~~
 > a = 'hello from session one!'
 > b = 1 + 2
 ~~~
 
 A few notes about interactive sessions:
+* You can include the process invocation command at the top of your initial session block, by placing an invocation directive on the line immediately after the `ispawn` directive. The invocation directive has the form `[//]:` `# (invocation text)`, where `text` is the invocation command line.
+You can see this in the next example.
 * You can include other text, such as placeholder output in your session block. `Prepress` will strip this text out and replace it with the actual output from the session.
 * Some interactive sessions display a welcome message before the first prompt. If you would like to display the welcome message, include at least one line, with any content, before the first prompt. If you would like to suppress the welcome message, just put the first command on the first line of the block.
 
-Let's start a second interactive session, and this time show the welcome message. We indicate it is a new session by supplying a new session id, in this case, `"two"`. We include a placeholder line at the top of the block to indicate that we'd like to see the welcome message.
+Let's start a second interactive session, and this time show the invocation line and the welcome message. We indicate it is a new session by supplying a new session id, in this case, `"two"`. Next we include the invocation directive with the command line. Then, inside the block, we include a placeholder line at the top to indicate that we'd like to see the welcome message and any other text that appears before the first prompt.
 
 ~~~~
 Placeholder line for welcome message
-[//]: # (interactive two > node -i)
+[//]: # (ispawn two > node -i)
+[//]: # (invocation $ node -i)
 ~~~
 > a
 > a = 'greetings from session two!'
@@ -169,7 +172,8 @@ Placeholder line for welcome message
 
 We can see that this is a different session because it displays a welcome message and variable `a` is undefined:
 
-[//]: # (interactive two > node -i)
+[//]: # (ispawn two > node -i)
+[//]: # (invocation $ node -i)
 ~~~
 Placeholder line for welcome message
 > a
@@ -180,7 +184,7 @@ We can then go back and continue our original session by reusing its session ide
 
 ~~~~
 
-[//]: # (interactive one > node -i)
+[//]: # (ispawn one > node -i)
 ~~~
 > a
 > b = 'goodbye!'
@@ -189,10 +193,29 @@ We can then go back and continue our original session by reusing its session ide
 
 We can see here that `a` has its value from session `one`:
 
-[//]: # (interactive one > node -i)
+[//]: # (ispawn one > node -i)
 ~~~
 > a
 > b = 'goodbye!'
+~~~
+
+The above examples used `ispawn` to spawn an interactive session with `node`, which is a native executable.
+To run an interactive script from a shell use the `iscript` command. Here's an example running `npm`, which is a script:
+
+~~~~
+[//]: # (iscript three > npm --version)
+[//]: # (invocation $ npm --version)
+~~~
+Version placeholder
+~~~
+~~~~
+
+Here's the output:
+
+[//]: # (iscript three > npm --version)
+[//]: # (invocation $ npm --version)
+~~~
+Version placeholder
 ~~~
 
 ## Building Prepress from Sources

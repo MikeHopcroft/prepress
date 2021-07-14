@@ -2,7 +2,10 @@ import stripAnsi from 'strip-ansi';
 
 import {fileProcessor} from './file_processor';
 import {IFS} from './ifs';
-import {interactiveProcessor} from './interactive_processor';
+import {
+  interactiveShellProcessor,
+  interactiveSpawnProcessor,
+} from './interactive_processor';
 
 import {
   AnySection,
@@ -30,7 +33,8 @@ export type Processor = (fs: IFS, blocks: AnySection[], group: Entry[]) => void;
 
 const processors = new Map<string, Processor>([
   ['file', fileProcessor],
-  ['interactive', interactiveProcessor],
+  ['iscript', interactiveShellProcessor],
+  ['ispawn', interactiveSpawnProcessor],
   ['script', scriptProcessor],
   ['spawn', spawnProcessor],
   ['verbatim', verbatimProcessor],

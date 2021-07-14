@@ -18,17 +18,34 @@ import {parseArgs} from './utilities';
  * 3. Some interactive programs run differently, in a sort of "batch mode",
  *    when presented with input that contains multiple newlines.
  * 4. Some interactive programs exit, when presented with the string, '\n'.
- */
+ ******************************************************************************/
 
-export async function interactiveProcessor(
+export async function interactiveShellProcessor(
   fs: IFS,
   blocks: AnySection[],
   group: Entry[]
 ) {
+  return interactiveProcessor(fs, blocks, group, true);
+}
+
+export async function interactiveSpawnProcessor(
+  fs: IFS,
+  blocks: AnySection[],
+  group: Entry[]
+) {
+  return interactiveProcessor(fs, blocks, group, false);
+}
+
+async function interactiveProcessor(
+  fs: IFS,
+  blocks: AnySection[],
+  group: Entry[],
+  shellMode: boolean
+) {
   const sessions = groupBySession(group);
 
   for (const session of sessions.values()) {
-    await processSession(blocks, session);
+    await processSession(blocks, session, shellMode);
   }
 }
 
@@ -65,7 +82,11 @@ interface Script {
   blocks: BlockInfo[];
 }
 
-async function processSession(blocks: AnySection[], group: Entry[]) {
+async function processSession(
+  blocks: AnySection[],
+  group: Entry[],
+  shellMode: boolean
+) {
   const block = group[0].block;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [[session, prompt, executable], args] = parseArgs(
@@ -78,7 +99,7 @@ async function processSession(blocks: AnySection[], group: Entry[]) {
   const script = generateScript(prompt, group);
 
   // Run script in session and gather output.
-  const output = await runScript(executable, args, prompt, script);
+  const output = await runScript(executable, args, prompt, script, shellMode);
 
   // Process output back into blocks.
   updateBlocks(blocks, prompt, script, output);
@@ -124,7 +145,8 @@ async function runScript(
   executable: string,
   args: string[],
   prompt: string,
-  script: Script
+  script: Script,
+  shellMode: boolean
 ): Promise<string[]> {
   const detector = new PromptDetector(prompt);
   const segments: string[] = [];
@@ -136,11 +158,10 @@ async function runScript(
     }
   }
   let nextCommand = 0;
-  let ended = false;
 
   return new Promise<string[]>((resolve, reject) => {
     try {
-      const program = spawn(executable, args, {shell: false});
+      const program = spawn(executable, args, {shell: shellMode});
       const iStream = program.stdin;
       const oStream = program.stdout;
 
@@ -150,30 +171,27 @@ async function runScript(
 
       oStream.on('data', (data: Buffer) => {
         const text = data.toString('utf8');
-        if (!ended) {
-          for (const c of text) {
-            const segment = detector.feedChar(c);
-            if (segment !== null) {
-              // We've detected a prompt and are ready to dispatch the next command.
-              // console.log(`segment = ${JSON.stringify(segment)}`);
-              segments.push(segment);
+        for (const c of text) {
+          const segment = detector.feedChar(c);
+          if (segment !== null) {
+            // We've detected a prompt and are ready to dispatch the next command.
+            // console.log(`segment = ${JSON.stringify(segment)}`);
+            segments.push(segment);
 
-              // Skip over empty commands.
-              while (
-                nextCommand < commands.length &&
-                commands[nextCommand] === ''
-              ) {
-                ++nextCommand;
-              }
+            // Skip over empty commands.
+            while (
+              nextCommand < commands.length &&
+              commands[nextCommand] === ''
+            ) {
+              ++nextCommand;
+            }
 
-              if (nextCommand === commands.length) {
-                // No more commands. Close stream.
-                ended = true;
-                iStream.end();
-              } else {
-                // Dispatch the next command.
-                iStream.write(commands[nextCommand++] + '\n');
-              }
+            if (nextCommand === commands.length) {
+              // No more commands. Close stream.
+              iStream.end();
+            } else {
+              // Dispatch the next command.
+              iStream.write(commands[nextCommand++] + '\n');
             }
           }
         }
@@ -181,6 +199,10 @@ async function runScript(
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       program.on('close', (code: number) => {
+        const remaining = detector.remaining();
+        if (remaining !== '') {
+          segments.push(remaining);
+        }
         resolve(segments);
       });
     } catch (e) {
@@ -259,6 +281,11 @@ class PromptDetector {
       }
     }
     return null;
+  }
+
+  remaining(): string {
+    // Trim off any trailing CR/LF
+    return this.text.replace(/\r?\n$/, '');
   }
 
   private lookForNewline() {

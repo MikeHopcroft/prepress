@@ -317,12 +317,44 @@ describe('Tutorial builder', () => {
     });
   });
 
-  describe('interactive block', () => {
+  // DESIGN NOTE: most of the iscript cases are tested by the ispawn tests.
+  // The simple iscript block case tests that a script can be run in a shell.
+  describe('iscript block', () => {
+    it('simple', async () => {
+      const markdown = stripLeadingSpaces(`\
+        Text before interactive block
+
+        [//]: # (iscript one > npm --version)
+        ~~~
+        prologue
+        ~~~
+
+        Text after interactive block
+      `);
+
+      const expected = stripLeadingSpaces(`\
+        Text before interactive block
+
+        [//]: # (iscript one > npm --version)
+        ~~~
+        X.Y.Z
+        ~~~
+
+        Text after interactive block
+      `);
+
+      const observed = await updateMarkdown(fs, markdown);
+      const normalized = observed.replace(/\d+\.\d+\.\d+/, 'X.Y.Z');
+      assert.equal(normalized, expected);
+    });
+  });
+
+  describe('ispawn block', () => {
     it('empty body', async () => {
       const markdown = stripLeadingSpaces(`\
         Text before interactive block
 
-        [//]: # (interactive one > node -i)
+        [//]: # (ispawn one > node -i)
         ~~~
         ~~~
       
@@ -332,7 +364,7 @@ describe('Tutorial builder', () => {
       const expected = stripLeadingSpaces(`\
         Text before interactive block
       
-        [//]: # (interactive one > node -i)
+        [//]: # (ispawn one > node -i)
         ~~~
         ~~~
       
@@ -347,7 +379,7 @@ describe('Tutorial builder', () => {
       const markdown = stripLeadingSpaces(`\
         Text before interactive block
 
-        [//]: # (interactive one > node -i)
+        [//]: # (ispawn one > node -i)
         [//]: # (invocation $ node -i)
         ~~~
         prologue
@@ -361,7 +393,7 @@ describe('Tutorial builder', () => {
       const expected = stripLeadingSpaces(`\
       Text before interactive block
 
-      [//]: # (interactive one > node -i)
+      [//]: # (ispawn one > node -i)
       [//]: # (invocation $ node -i)
       ~~~
       $ node -i
@@ -389,7 +421,7 @@ describe('Tutorial builder', () => {
       const markdown = stripLeadingSpaces(`\
         Text before interactive block
 
-        [//]: # (interactive one > node -i)
+        [//]: # (ispawn one > node -i)
         ~~~
         > a = 1+2
         >
@@ -404,7 +436,7 @@ describe('Tutorial builder', () => {
       const expected = stripLeadingSpaces(`\
         Text before interactive block
       
-        [//]: # (interactive one > node -i)
+        [//]: # (ispawn one > node -i)
         ~~~
         > a = 1+2
         3
@@ -427,7 +459,7 @@ describe('Tutorial builder', () => {
       const markdown = stripLeadingSpaces(`\
         Text before interactive block
 
-        [//]: # (interactive one > node -i)
+        [//]: # (ispawn one > node -i)
         ~~~
         > a = 1+2
         > b = 3
@@ -440,7 +472,7 @@ describe('Tutorial builder', () => {
       const expected = stripLeadingSpaces(`\
         Text before interactive block
       
-        [//]: # (interactive one > node -i)
+        [//]: # (ispawn one > node -i)
         ~~~
         > a = 1+2
         3
@@ -461,7 +493,7 @@ describe('Tutorial builder', () => {
       const markdown = stripLeadingSpaces(`\
         Text before interactive block
 
-        [//]: # (interactive one > node -i)
+        [//]: # (ispawn one > node -i)
         ~~~
         Placeholder for prologue
         > a = 1+2
@@ -475,7 +507,7 @@ describe('Tutorial builder', () => {
       const expected = stripLeadingSpaces(`\
         Text before interactive block
       
-        [//]: # (interactive one > node -i)
+        [//]: # (ispawn one > node -i)
         ~~~
         Welcome to Node.js vX.Y.Z.
         Type ".help" for more information.
@@ -502,7 +534,7 @@ describe('Tutorial builder', () => {
       const markdown = stripLeadingSpaces(`\
         Before first block
 
-        [//]: # (interactive one > node -i)
+        [//]: # (ispawn one > node -i)
         ~~~
         Prologue
         > 1
@@ -513,7 +545,7 @@ describe('Tutorial builder', () => {
 
         Before second block
 
-        [//]: # (interactive one > node -i)
+        [//]: # (ispawn one > node -i)
         ~~~
         > 3 + 4
         ~~~
@@ -524,7 +556,7 @@ describe('Tutorial builder', () => {
       const expected = stripLeadingSpaces(`\
         Before first block
 
-        [//]: # (interactive one > node -i)
+        [//]: # (ispawn one > node -i)
         ~~~
         Welcome to Node.js vX.Y.Z.
         Type ".help" for more information.
@@ -538,7 +570,7 @@ describe('Tutorial builder', () => {
 
         Before second block
 
-        [//]: # (interactive one > node -i)
+        [//]: # (ispawn one > node -i)
         ~~~
         > 3 + 4
         7
@@ -559,14 +591,14 @@ describe('Tutorial builder', () => {
       const markdown = stripLeadingSpaces(`\
         Interactive block for session one
 
-        [//]: # (interactive one > node -i)
+        [//]: # (ispawn one > node -i)
         ~~~
         > a = 'hello'
         ~~~
 
         Interactive block for session two
 
-        [//]: # (interactive two > node -i)
+        [//]: # (ispawn two > node -i)
         ~~~
         > a
         > a = 'goodbye'
@@ -574,14 +606,14 @@ describe('Tutorial builder', () => {
 
         Return to session one
 
-        [//]: # (interactive one > node -i)
+        [//]: # (ispawn one > node -i)
         ~~~
         > a
         ~~~
 
         Return to session two
 
-        [//]: # (interactive two > node -i)
+        [//]: # (ispawn two > node -i)
         ~~~
         > a
         ~~~
@@ -590,7 +622,7 @@ describe('Tutorial builder', () => {
       const expected = stripLeadingSpaces(`\
         Interactive block for session one
 
-        [//]: # (interactive one > node -i)
+        [//]: # (ispawn one > node -i)
         ~~~
         > a = 'hello'
         'hello'
@@ -598,7 +630,7 @@ describe('Tutorial builder', () => {
 
         Interactive block for session two
 
-        [//]: # (interactive two > node -i)
+        [//]: # (ispawn two > node -i)
         ~~~
         > a
         Uncaught ReferenceError: a is not defined
@@ -608,7 +640,7 @@ describe('Tutorial builder', () => {
 
         Return to session one
 
-        [//]: # (interactive one > node -i)
+        [//]: # (ispawn one > node -i)
         ~~~
         > a
         'hello'
@@ -616,7 +648,7 @@ describe('Tutorial builder', () => {
 
         Return to session two
 
-        [//]: # (interactive two > node -i)
+        [//]: # (ispawn two > node -i)
         ~~~
         > a
         'goodbye'
