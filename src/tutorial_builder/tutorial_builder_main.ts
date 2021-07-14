@@ -5,9 +5,12 @@ import mkdirp from 'mkdirp';
 import path from 'path';
 import recursiveReaddir from 'recursive-readdir';
 
-import {updateMarkdown} from './tutorial_builder';
+import {Processor, Updater} from './tutorial_builder';
 
-export async function tutorialBuilderMain(argv: string[]): Promise<boolean> {
+export async function tutorialBuilderMain(
+  argv: string[],
+  extensions = new Map<string, Processor>()
+): Promise<boolean> {
   // TODO: get executable and params (e.g. -d, -x) from markdown
   const args = minimist(argv.slice(2));
 
@@ -31,8 +34,11 @@ export async function tutorialBuilderMain(argv: string[]): Promise<boolean> {
     return false;
   }
 
+  const updater = new Updater(extensions);
+
   try {
     await processFileOrFolder(
+      updater,
       inFile,
       outFile,
       args.r === true,
@@ -92,6 +98,7 @@ function showUsage() {
 }
 
 async function processFileOrFolder(
+  updater: Updater,
   inPath: string,
   outPath: string | undefined,
   recursive: boolean,
@@ -122,7 +129,7 @@ async function processFileOrFolder(
             const temp = match[1] + '.md';
             const outFile = path.join(outPath, path.relative(inPath, temp));
             console.log(`${inFile} => ${outFile}`);
-            await convertFile(inFile, outFile, dryrun);
+            await convertFile(updater, inFile, outFile, dryrun);
           }
         }
       }
@@ -142,11 +149,11 @@ async function processFileOrFolder(
 
       if (outType === PathType.DIR) {
         // Process one file and output to another directory
-        await convertFile(inPath, rename(inPath, outPath), dryrun);
+        await convertFile(updater, inPath, rename(inPath, outPath), dryrun);
       } else {
         // outType === PathType.FILE || outType === PathType.NONE
         // Process one file to another file
-        await convertFile(inPath, outPath, dryrun);
+        await convertFile(updater, inPath, outPath, dryrun);
       }
     }
   }
@@ -160,7 +167,12 @@ function rename(fileName: string, outDir: string): string {
   return outPath;
 }
 
-async function convertFile(inFile: string, outFile: string, dryrun: boolean) {
+async function convertFile(
+  updater: Updater,
+  inFile: string,
+  outFile: string,
+  dryrun: boolean
+) {
   const inPath = path.resolve(inFile);
   const outPath = path.resolve(outFile);
 
@@ -190,7 +202,7 @@ async function convertFile(inFile: string, outFile: string, dryrun: boolean) {
   }
 
   const text = fs.readFileSync(inFile, 'utf8');
-  const updatedText = await updateMarkdown(fs, text);
+  const updatedText = await updater.updateMarkdown(fs, text);
 
   if (dryrun) {
     console.log(updatedText);

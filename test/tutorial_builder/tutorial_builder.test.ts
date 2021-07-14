@@ -6,8 +6,14 @@ import 'mocha';
 chai.use(chaiAsPromised);
 
 import {IFS} from '../../src/tutorial_builder/ifs';
-import {updateMarkdown} from '../../src/tutorial_builder/tutorial_builder';
+import {Updater} from '../../src/tutorial_builder/tutorial_builder';
 
+const updater = new Updater();
+async function updateMarkdown(fs: IFS, text: string): Promise<string> {
+  return updater.updateMarkdown(fs, text);
+}
+
+// Files for virtual file system used by tests.
 const files = {
   'test.txt':
     'one\ntwo\nthree\nfour\nfive\nsix\nseven\neight\nnine\nten\neleven',

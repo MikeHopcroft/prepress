@@ -1,6 +1,8 @@
 # TODO List
 
 * Top
+  * Replace ensureFolderAndWrite() - use outputFileSync() from fs-extra
+  * x Ability to extend updateMarkdown() with other processors.
   * x Interactive
     * x Print out blank prompts
     * x Suppress last prompt

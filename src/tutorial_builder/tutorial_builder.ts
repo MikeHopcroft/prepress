@@ -31,17 +31,32 @@ export interface Entry {
 
 export type Processor = (fs: IFS, blocks: AnySection[], group: Entry[]) => void;
 
-const processors = new Map<string, Processor>([
-  ['file', fileProcessor],
-  ['iscript', interactiveShellProcessor],
-  ['ispawn', interactiveSpawnProcessor],
-  ['script', scriptProcessor],
-  ['spawn', spawnProcessor],
-  ['verbatim', verbatimProcessor],
-]);
+export class Updater {
+  private processors = new Map<string, Processor>([
+    ['file', fileProcessor],
+    ['iscript', interactiveShellProcessor],
+    ['ispawn', interactiveSpawnProcessor],
+    ['script', scriptProcessor],
+    ['spawn', spawnProcessor],
+    ['verbatim', verbatimProcessor],
+  ]);
 
-export async function updateMarkdown(fs: IFS, text: string): Promise<string> {
-  return await updateMarkdownInternal(fs, processors, text);
+  constructor(
+    processors: Map<string, Processor> = new Map<string, Processor>()
+  ) {
+    for (const [key, value] of processors) {
+      if (this.processors.has(key)) {
+        const message = `Encountered duplicate processor '${key}'.`;
+        throw new TypeError(message);
+      } else {
+        this.processors.set(key, value);
+      }
+    }
+  }
+
+  async updateMarkdown(fs: IFS, text: string): Promise<string> {
+    return await updateMarkdownInternal(fs, this.processors, text);
+  }
 }
 
 async function updateMarkdownInternal(
