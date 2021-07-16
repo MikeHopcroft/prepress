@@ -10,6 +10,7 @@ import {
 import {
   AnySection,
   CodeBlockSection,
+  Command,
   parseMarkdown,
   SectionType,
   TextSection,
@@ -104,12 +105,10 @@ export function makeBlock(
 ): TextSection {
   // TODO: choose alternate open/close based on contents
   // of body (e.g. if body has ~~~, use ~~~~).
-  const options = block.options.map(
-    option => `[//]: # (${option.name} ${option.parameters})`
-  );
+  const options = block.options.map(formatCommand);
 
   const body: string[] = [
-    `[//]: # (${block.command.name} ${block.command.parameters})`,
+    formatCommand(block.command),
     ...options,
     block.open,
     ...lines,
@@ -117,4 +116,12 @@ export function makeBlock(
   ];
 
   return {type: SectionType.TEXT, body};
+}
+
+function formatCommand(command: Command): string {
+  if (command.parameters) {
+    return `[//]: # (${command.name} ${command.parameters})`;
+  } else {
+    return `[//]: # (${command.name})`;
+  }
 }
